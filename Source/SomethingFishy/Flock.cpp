@@ -4,6 +4,7 @@
 #include "Flock.h"
 #include "Boid.h"
 #include "Engine/World.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 AFlock::AFlock()
@@ -13,27 +14,25 @@ AFlock::AFlock()
 
 	// Set navigation bounds
 	this->bounds = FVector(200, 200, 200);
-
-	UWorld* world = GetWorld();
-	//FVector* location = FVector(0, 0, 0);
-	//FRotator* rotation = FRotator(0, 0, 0);
-	//world->SpawnActor(ActorToSpawn, location, rotation);
-
-	// Generate all boids in flock randomly on playable area
-	//for (int i = 0; i < this->flockSize; ++i)
-	//{
-	//	this->flockmates.push_back(
-	//		GetWorld()->SpawnActor<ABoid>(ToSpawn, FVector(FMath::RandRange(0,200), 0, FMath::RandRange(0,200)),
-	//		this->GetActorRotation())
-	//	);
-	//}
 }
 
 // Called when the game starts or when spawned
 void AFlock::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	UWorld* world = GetWorld();
+	FVector location(0);
+	FRotator rotation(0);
+
+	// Generate all boids in flock randomly on playable area
+	for (int i = 0; i < this->flockSize; ++i)
+	{
+		location.FVector::Set(UKismetMathLibrary::RandomFloat() * this->bounds.X,
+									 UKismetMathLibrary::RandomFloat() * this->bounds.Y,
+									 UKismetMathLibrary::RandomFloat() * this->bounds.Z);
+		this->flockmates.push_back((ABoid*)world->UWorld::SpawnActor(ActorToSpawn, &location, 0));
+	}
 }
 
 // Return visible flock mates

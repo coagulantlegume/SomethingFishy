@@ -41,5 +41,5 @@ public:
 
 	// UClass of actors to spawn as flockmates
 	UPROPERTY(EditAnywhere)
-		TSubclassOf<AActor> ActorToSpawn;
+		TSubclassOf<ABoid> ActorToSpawn;
 };

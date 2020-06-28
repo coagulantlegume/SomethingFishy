@@ -21,7 +21,7 @@ ABoid::ABoid()
 		VisualMesh->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
 	}
 
-	SetActorScale3D(GetActorScale() * .5);
+	VisualMesh->SetRelativeScale3D(FVector(0.5, 0.5, 0.5));
 }
 
 // Called when the game starts or when spawned
