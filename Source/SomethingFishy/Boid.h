@@ -24,7 +24,10 @@ public:
 	AFlock* myFlock;
 
 	UPROPERTY(EditAnywhere)
-	float perceptionRange = 100;
+	float perceptionRange = 300;
+
+	UPROPERTY(EditAnywhere)
+		float speed = 100;
 
 protected:
 	// Called when the game starts or when spawned
@@ -35,11 +38,11 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	// Separation: Steer to avoid crowding local flockmates
-	void Separation(const std::vector<ABoid*>& flockMates);
+	void Separation(const std::vector<ABoid*>& flockMates, FVector moveDirection);
 
 	// Alignment: Steer towards the average heading of local flockmates
-	void Alignment(const std::vector<ABoid*>& flockMates);
+	void Alignment(const std::vector<ABoid*>& flockMates, FVector moveDirection);
 
 	// Cohesion: Steer to move toward the average position of local flockmates
-	void Cohesion(const std::vector<ABoid*>& flockMates);
+	void Cohesion(const std::vector<ABoid*>& flockMates, FVector moveDirection);
 };

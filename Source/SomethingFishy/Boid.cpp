@@ -37,24 +37,35 @@ void ABoid::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	std::vector<ABoid*> curr_flockmates;
-	//this->myFlock->AFlock::GetVisibleFlockmates(this, this->perceptionRange, curr_flockmates);
+	this->myFlock->AFlock::GetVisibleFlockmates(this, this->perceptionRange, curr_flockmates);
 
+	// Make vector for current direction
+	FVector moveDirection = GetActorRotation().Vector();
+
+	// Apply Boid logic
+	this->Separation(curr_flockmates, moveDirection);
+	this->Alignment(curr_flockmates, moveDirection);
+	this->Cohesion(curr_flockmates, moveDirection);
+
+	// Move boid along current direction, limited by max speed
+	moveDirection.Normalize(this->speed);
+	SetActorLocation(this->GetActorLocation() + moveDirection);
 }
 
 // Separation: Steer to avoid crowding local flockmates
-void ABoid::Separation(const std::vector<ABoid*>& flockMates)
+void ABoid::Separation(const std::vector<ABoid*>& flockMates, FVector moveDirection)
 {
 
 }
 
 // Alignment: Steer towards the average heading of local flockmates
-void ABoid::Alignment(const std::vector<ABoid*>& flockMates)
+void ABoid::Alignment(const std::vector<ABoid*>& flockMates, FVector moveDirection)
 {
 
 }
 
 // Cohesion: Steer to move toward the average position of local flockmates
-void ABoid::Cohesion(const std::vector<ABoid*>& flockMates)
+void ABoid::Cohesion(const std::vector<ABoid*>& flockMates, FVector moveDirection)
 {
 
 }

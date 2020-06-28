@@ -28,10 +28,13 @@ void AFlock::BeginPlay()
 	// Generate all boids in flock randomly on playable area
 	for (int i = 0; i < this->flockSize; ++i)
 	{
+		// set random position within bounds
 		location.FVector::Set(UKismetMathLibrary::RandomFloat() * this->bounds.X,
 									 UKismetMathLibrary::RandomFloat() * this->bounds.Y,
 									 UKismetMathLibrary::RandomFloat() * this->bounds.Z);
-		this->flockmates.push_back((ABoid*)world->UWorld::SpawnActor(ActorToSpawn, &location, 0));
+		ABoid* newFlockmate = (ABoid*)world->UWorld::SpawnActor(ActorToSpawn, &location, 0);
+		newFlockmate->myFlock = this;
+		this->flockmates.push_back(newFlockmate);
 	}
 }
 
