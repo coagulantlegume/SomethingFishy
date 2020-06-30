@@ -22,7 +22,7 @@ ABoid::ABoid()
    {
       this->VisualMesh->SetStaticMesh(SphereVisualAsset.Object);
       this->VisualMesh->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
-      this->VisualMesh->SetRelativeScale3D(FVector(0.5, 0.25, 0.25));
+      this->VisualMesh->SetRelativeScale3D(FVector(0.25, 0.1, 0.1));
    }
 
    // Set up projectile component
@@ -61,10 +61,18 @@ void ABoid::Tick(float DeltaTime)
       moveDirection += this->Alignment(curr_flockmates) * this->alignment_weight;
       moveDirection += this->Cohesion(curr_flockmates) * this->cohesion_weight;
    }
-   // moveDirection += this->Target() * this->target_weight;
+   moveDirection += this->Target() * this->target_weight;
    moveDirection += this->AvoidObstacles() * this->avoidObstacles_weight;
 
-   this->ProjectileMovementComponent->Velocity += moveDirection * this->speed * DeltaTime;
+   // Temporary fix for occasional garbage moveDirection which propagates. fix later
+   if (moveDirection.Size() < this->speed * 100 && moveDirection.Size() > -this->speed * 100)
+   {
+      this->ProjectileMovementComponent->Velocity += moveDirection * this->speed * DeltaTime;
+   }
+   else
+   {
+      this->ProjectileMovementComponent->Velocity = FVector(1, 1, 1);
+   }
 }
 
 // Separation: Steer to avoid crowding local flockmates
@@ -111,7 +119,7 @@ FVector ABoid::Alignment(const std::vector<ABoid*>& flockmates)
 // Cohesion: Steer to move toward the average position of local flockmates
 FVector ABoid::Cohesion(const std::vector<ABoid*>& flockmates)
 {
-   FVector position;
+   FVector position = FVector(0,0,0);
    for (unsigned int i = 0; i < flockmates.size(); ++i)
    {
       position += flockmates[i]->GetActorLocation();
@@ -129,7 +137,7 @@ FVector ABoid::Cohesion(const std::vector<ABoid*>& flockmates)
 // Steer toward closest target, if in perception range
 FVector ABoid::Target()
 {
-   FVector force;
+   FVector force = FVector(0,0,0);
    return force;
 }
 
@@ -137,22 +145,26 @@ FVector ABoid::Target()
 FVector ABoid::AvoidObstacles()
 {
    FVector force = FVector(0,0,0);
+   FVector loc = this->GetActorLocation();
    // Avoid ground
-   if (this->GetActorLocation().Z < this->perceptionRange)
+   if (loc.Z < this->perceptionRange / 3)
    {
-      force.Z *= this->perceptionRange - this->GetActorLocation().Z;
+      force.Z += this->perceptionRange / 3 - loc.Z;
    }
-
    // Avoid going too high
-   if (this->GetActorLocation().Z > this->myFlock->bounds.Z - this->perceptionRange)
+   else if (loc.Z > this->myFlock->bounds.Z - this->perceptionRange / 3)
    {
-      force.Z *= this->GetActorLocation().Z - this->myFlock->bounds.Z - this->perceptionRange;
+      force.Z += (this->myFlock->bounds.Z - this->perceptionRange / 3) - loc.Z;
+      //UE_LOG(LogTemp, Warning, TEXT("%f"), this->GetActorLocation().Z)
    }
 
-   force /= force.Size();
-   force *= this->speed;
-   force -= this->ProjectileMovementComponent->Velocity;
-   force.Normalize(this->max_force);
+   if (force.Size()) 
+   {
+      force /= force.Size();
+      force *= this->speed;
+      force.Z -= this->ProjectileMovementComponent->Velocity.Z;
+      force.Normalize(this->max_force);
+   }
 
    return force;
 }
