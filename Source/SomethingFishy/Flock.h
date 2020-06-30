@@ -11,35 +11,39 @@ class ABoid;
 UCLASS()
 class SOMETHINGFISHY_API AFlock : public AActor
 {
-	GENERATED_BODY()
-	
+   GENERATED_BODY()
+   
 public:	
-	// Sets default values for this actor's properties
-	AFlock();
+   // Sets default values for this actor's properties
+   AFlock();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+   // Called when the game starts or when spawned
+   virtual void BeginPlay() override;
 
 public:
-	// Return number of boids in flock
-	int32 GetFlockSize() { return this->flockSize; }
+   // Return number of boids in flock
+   int32 GetFlockSize() { return this->flockSize; }
 
-	// Return visible flock mates
-	void GetVisibleFlockmates(ABoid* me, float perceptionRange, std::vector<ABoid*>& visibleBoids);
+   // Return visible flock mates
+   void GetVisibleFlockmates(ABoid* me, float perceptionRange, std::vector<ABoid*>& visibleBoids);
 
-	// Array of all boids in flock
-	std::vector<ABoid*> flockmates;
+   // Array of all boids in flock
+   std::vector<ABoid*> flockmates;
 
-	// Number of boids in flock
-	UPROPERTY(EditAnywhere)
-		int32 flockSize = 20;
+   // Number of boids in flock
+   UPROPERTY(EditAnywhere)
+      int32 flockSize = 20;
 
-	// Bounding limits of flock movement
-	UPROPERTY(EditAnywhere)
-		FVector bounds;
+   // Bounding limits of flock movement
+   UPROPERTY(EditAnywhere)
+      FVector bounds = FVector(200,200,200);
 
-	// UClass of actors to spawn as flockmates
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<ABoid> ActorToSpawn;
+   // Buffer for turning off senses outside of bounds before teleporting
+   UPROPERTY(EditAnywhere)
+      float boundsBuffer = 100;
+
+   // UClass of actors to spawn as flockmates
+   UPROPERTY(EditAnywhere)
+      TSubclassOf<ABoid> ActorToSpawn;
 };
