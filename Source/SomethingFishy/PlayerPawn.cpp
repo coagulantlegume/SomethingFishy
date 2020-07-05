@@ -18,15 +18,23 @@ APlayerPawn::APlayerPawn()
    RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
    // Create a visible object
    VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VisualMesh"));
+
+   //static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeVisualAsset(TEXT("/Game/StarterContent/Shapes/Shape_Cube.Shape_Cube"));
+   //
+   //if (CubeVisualAsset.Succeeded())
+   //{
+   //   this->VisualMesh->SetStaticMesh(CubeVisualAsset.Object);
+   //   this->VisualMesh->SetRelativeScale3D(FVector(.01, .01, .01));
+   //}
+
    //// Attach our visible object to our root component. Offset and rotate the camera.
    VisualMesh->SetupAttachment(RootComponent);
 
    springArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpringArm"));
    springArm->SetupAttachment(RootComponent);
-   springArm->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 0.0f), FRotator(-60.0f, 0.0f, 0.0f));
-   springArm->TargetArmLength = 1.f;
-   springArm->bEnableCameraLag = true;
-   springArm->CameraLagSpeed = 3.f;
+   springArm->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 300.f), FRotator(0.0f, 0.0f, 0.0f));
+   springArm->TargetArmLength = 0;
+   springArm->bEnableCameraLag = false;
    camera = CreateDefaultSubobject<UCameraComponent>(TEXT("GameCamera"));
    camera->SetupAttachment(springArm, USpringArmComponent::SocketName);
 }
@@ -49,7 +57,7 @@ void APlayerPawn::Tick(float DeltaTime)
       moveInput = moveInput.GetClampedToMaxSize(maxSpeed);
       FVector NewLocation = GetActorLocation() + (moveInput * DeltaTime);
       SetActorLocation(NewLocation);
-      moveInput *= .0001;
+      moveInput *= .2;
    }
    
 
@@ -57,9 +65,9 @@ void APlayerPawn::Tick(float DeltaTime)
    newYaw.Yaw += mouseInput.X;
    SetActorRotation(newYaw);
 
-   FRotator newPitch = springArm->GetComponentRotation();
-   newPitch.Pitch = FMath::Clamp(newPitch.Pitch + mouseInput.Y, -90.f, 90.f);
-   springArm->SetWorldRotation(newPitch);
+   FRotator newPitch = camera->GetComponentRotation();
+   newPitch.Pitch = FMath::Clamp(newPitch.Pitch + mouseInput.Y, -80.f, 80.f);
+   camera->SetWorldRotation(newPitch);
 }
 
 // Called to bind functionality to input
