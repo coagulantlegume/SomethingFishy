@@ -21,7 +21,7 @@ public:
 
 	// Current value (bites left)
 	UPROPERTY(VisibleAnywhere)
-		int value = 16;
+		float value = 16;
 
 	// spawn location
 	UPROPERTY(VisibleAnywhere)
@@ -35,7 +35,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called by fish when biting
-	void Bite();
-
+	// Bite collision
+	virtual void NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit);
 };
