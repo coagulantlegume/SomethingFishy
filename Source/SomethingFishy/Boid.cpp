@@ -71,7 +71,7 @@ void ABoid::Tick(float DeltaTime)
    }
    else
    {
-      this->ProjectileMovementComponent->Velocity = FVector(1, 1, 1);
+      this->ProjectileMovementComponent->Velocity += GetActorRotation().Vector() * this->speed * DeltaTime;
    }
 }
 
@@ -95,7 +95,14 @@ FVector ABoid::Separation(const std::vector<ABoid*>& flockmates)
    force -= this->ProjectileMovementComponent->Velocity;
    force.Normalize(this->max_force);
 
-   return force;
+   if (force.Size() < this->speed * 100 && force.Size() > -this->speed * 100) 
+   {
+      return force;
+   }
+   else
+   {
+      return FVector(0, 0, 0);
+   }
 }
 
 // Alignment: Steer towards the average heading of local flockmates
@@ -113,7 +120,14 @@ FVector ABoid::Alignment(const std::vector<ABoid*>& flockmates)
    force -= this->ProjectileMovementComponent->Velocity;
    force.Normalize(this->max_force);
 
-   return force;
+   if (force.Size() < this->speed * 100 && force.Size() > -this->speed * 100)
+   {
+      return force;
+   }
+   else
+   {
+      return FVector(0, 0, 0);
+   }
 }
 
 // Cohesion: Steer to move toward the average position of local flockmates
@@ -131,7 +145,14 @@ FVector ABoid::Cohesion(const std::vector<ABoid*>& flockmates)
    force -= this->ProjectileMovementComponent->Velocity;
    force.Normalize(this->max_force);
 
-   return force;
+   if (force.Size() < this->speed * 100 && force.Size() > -this->speed * 100)
+   {
+      return force;
+   }
+   else
+   {
+      return FVector(0, 0, 0);
+   }
 }
 
 // Steer toward closest target, if in perception range
@@ -166,7 +187,14 @@ FVector ABoid::AvoidObstacles()
       force.Normalize(this->max_force);
    }
 
-   return force;
+   if (force.Size() < this->speed * 100 && force.Size() > -this->speed * 100)
+   {
+      return force;
+   }
+   else
+   {
+      return FVector(0, 0, 0);
+   }
 }
 
 // Check bounds, start fade if out of bounds
