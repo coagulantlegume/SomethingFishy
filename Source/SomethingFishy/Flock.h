@@ -7,6 +7,8 @@
 #include "Flock.generated.h"
 
 class ABoid;
+class ABaitManager;
+class ABait;
 
 UCLASS()
 class SOMETHINGFISHY_API AFlock : public AActor
@@ -16,6 +18,9 @@ class SOMETHINGFISHY_API AFlock : public AActor
 public:	
    // Sets default values for this actor's properties
    AFlock();
+
+   UPROPERTY(VisibleAnywhere)
+      ABaitManager* baitManager;
 
 protected:
    // Called when the game starts or when spawned
@@ -46,4 +51,12 @@ public:
    // UClass of actors to spawn as flockmates
    UPROPERTY(EditAnywhere)
       TSubclassOf<ABoid> ActorToSpawn;
+
+   // UClass of baitmanager actor
+   UPROPERTY(EditAnywhere)
+      TSubclassOf<ABaitManager> BaitManagerActor;
+
+   // UClass of actors to spawn as bait
+   UPROPERTY(EditAnywhere)
+      TSubclassOf<ABait> BaitActorToSpawn;
 };

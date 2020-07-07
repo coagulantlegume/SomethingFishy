@@ -2,6 +2,7 @@
 
 #include "Flock.h"
 #include "Boid.h"
+#include "BaitManager.h"
 
 #include "Engine/World.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -33,6 +34,11 @@ void AFlock::BeginPlay()
       newFlockmate->myFlock = this;
       this->flockmates.push_back(newFlockmate);
    }
+
+   // TODO: Have world bait manager variable to connect to so player has access
+   this->baitManager = (ABaitManager*)world->UWorld::SpawnActor(BaitManagerActor, 0, 0);
+   this->baitManager->ActorToSpawn = this->BaitActorToSpawn;
+   this->baitManager->SpawnBait(FVector(0, 0, 0)); // spawn one bait, just to test
 }
 
 // Return visible flock mates

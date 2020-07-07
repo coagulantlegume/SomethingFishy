@@ -2,6 +2,8 @@
 
 #include "Boid.h"
 #include "Flock.h"
+#include "BaitManager.h"
+#include "Bait.h"
 
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -40,7 +42,6 @@ ABoid::ABoid()
 void ABoid::BeginPlay()
 {
    Super::BeginPlay();
-   
 }
 
 // Called every frame
@@ -61,7 +62,10 @@ void ABoid::Tick(float DeltaTime)
       moveDirection += this->Alignment(curr_flockmates) * this->alignment_weight;
       moveDirection += this->Cohesion(curr_flockmates) * this->cohesion_weight;
    }
-   moveDirection += this->Target() * this->target_weight;
+   if (this->myFlock->baitManager->NotEmpty())
+   {
+      moveDirection += this->Target() * this->target_weight;
+   }
    moveDirection += this->AvoidObstacles() * this->avoidObstacles_weight;
 
    // Temporary fix for occasional garbage moveDirection which propagates. fix later
@@ -159,7 +163,25 @@ FVector ABoid::Cohesion(const std::vector<ABoid*>& flockmates)
 FVector ABoid::Target()
 {
    FVector force = FVector(0,0,0);
-   return force;
+   ABait* nearbyBait = this->myFlock->baitManager->GetNearestBait(this->GetActorLocation());
+   if (!nearbyBait)
+   {
+      return force;
+   }
+   force = nearbyBait->GetActorLocation() - this->GetActorLocation();
+   force /= force.Size();
+   force *= this->speed;
+   force -= this->ProjectileMovementComponent->Velocity;
+   force.Normalize(this->max_force);
+
+   if (force.Size() < this->speed * 100 && force.Size() > -this->speed * 100)
+   {
+      return force;
+   }
+   else
+   {
+      return FVector(0, 0, 0);
+   }
 }
 
 // Obstacle/bounds check

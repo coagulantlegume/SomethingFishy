@@ -20,7 +20,7 @@ ABait::ABait()
    {
       this->VisualMesh->SetStaticMesh(CubeVisualAsset.Object);
       // this->VisualMesh->SetRelativeLocation(spawnLocation);
-      this->VisualMesh->SetRelativeScale3D(FVector(this->value / 32, this->value / 32, this->value / 32));
+      this->VisualMesh->SetRelativeScale3D(FVector(this->value / 32 + .2, this->value / 32 + .2, this->value / 32 + .2));
    }
 }
 
@@ -48,7 +48,7 @@ void ABait::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, cl
      --this->value;
      if (this->value > 0)
      {
-        this->VisualMesh->SetRelativeScale3D(FVector(this->value / 32, this->value / 32, this->value / 32));
+        this->VisualMesh->SetRelativeScale3D(FVector(this->value / 32 + .2, this->value / 32 + .2, this->value / 32 + .2));
         if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Size: %f, %d"), this->GetActorScale().X, this->value));
      }
      else

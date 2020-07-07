@@ -4,6 +4,7 @@
 #include "PlayerPawn.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 APlayerPawn::APlayerPawn()
@@ -13,27 +14,18 @@ APlayerPawn::APlayerPawn()
 
    // Set this pawn to be controlled by the lowest-numbered player
    AutoPossessPlayer = EAutoReceiveInput::Player0;
-   
-   // Create a dummy root component we can attach things to.
-   RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-   // Create a visible object
-   VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VisualMesh"));
 
-   //static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeVisualAsset(TEXT("/Game/StarterContent/Shapes/Shape_Cube.Shape_Cube"));
-   //
-   //if (CubeVisualAsset.Succeeded())
-   //{
-   //   this->VisualMesh->SetStaticMesh(CubeVisualAsset.Object);
-   //   this->VisualMesh->SetRelativeScale3D(FVector(.01, .01, .01));
-   //}
-
-   //// Attach our visible object to our root component. Offset and rotate the camera.
-   VisualMesh->SetupAttachment(RootComponent);
+   // Create collision object and set as root
+   collisionMesh = CreateDefaultSubobject<UCapsuleComponent>(TEXT("collisionMesh"));
+   RootComponent = collisionMesh;
+   collisionMesh->InitCapsuleSize(60, 160);
+   collisionMesh->SetCollisionProfileName(TEXT("Player"));
+   collisionMesh->SetupAttachment(RootComponent);
 
    springArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpringArm"));
    springArm->SetupAttachment(RootComponent);
-   springArm->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 300.f), FRotator(0.0f, 0.0f, 0.0f));
-   springArm->TargetArmLength = 0;
+   springArm->SetRelativeLocationAndRotation(FVector(-60.0f, 0.0f, 140.f), FRotator(0.0f, 0.0f, 0.0f));
+   springArm->TargetArmLength = -60;
    springArm->bEnableCameraLag = false;
    camera = CreateDefaultSubobject<UCameraComponent>(TEXT("GameCamera"));
    camera->SetupAttachment(springArm, USpringArmComponent::SocketName);
@@ -55,9 +47,11 @@ void APlayerPawn::Tick(float DeltaTime)
    if (!moveInput.IsZero())
    {
       moveInput = moveInput.GetClampedToMaxSize(maxSpeed);
-      FVector NewLocation = GetActorLocation() + (moveInput * DeltaTime);
-      SetActorLocation(NewLocation);
-      moveInput *= .2;
+      //FVector NewLocation = GetActorLocation() + (moveInput * DeltaTime);
+      AddActorLocalOffset(moveInput, true);
+      //collisionMesh->BodyInstance.SetLinearVelocity(NewLocation, false, true);
+      //if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Velocity: (%d, %d, %d)"), collisionMesh->BodyInstance.));
+      moveInput *= 0.2;
    }
    
 
@@ -90,17 +84,12 @@ void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 void APlayerPawn::Move_XAxis(float value)
 {
 
-   FVector direction = GetActorRotation().Vector() * GetActorRotation().Vector().Size();
-   moveInput += direction * FMath::Clamp(value, -1.0f, 1.0f) * maxSpeed;
+   moveInput.X += FMath::Clamp(value, -1.0f, 1.0f) * maxSpeed;
 }
 
 void APlayerPawn::Move_YAxis(float value)
 {
-   FVector direction = GetActorRotation().Vector() * GetActorRotation().Vector().Size();
-   float temp = direction.X;
-   direction.X = -direction.Y;
-   direction.Y = temp;
-   moveInput += direction * FMath::Clamp(value, -1.0f, 1.0f) * maxSpeed;
+   moveInput.Y += FMath::Clamp(value, -1.0f, 1.0f) * maxSpeed;
 }
 
 void APlayerPawn::CameraMoveX(float value)

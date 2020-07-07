@@ -8,6 +8,7 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class UCapsuleComponent;
 
 UCLASS()
 class SOMETHINGFISHY_API APlayerPawn : public APawn
@@ -19,9 +20,9 @@ public:
 	APlayerPawn();
 
    UPROPERTY(VisibleAnywhere)
-   UStaticMeshComponent* VisualMesh;
+   UCapsuleComponent* collisionMesh;
 
-   float maxSpeed = 800;
+   float maxSpeed = 5;
 
 protected:
 	// Called when the game starts or when spawned

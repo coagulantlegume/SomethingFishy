@@ -36,22 +36,22 @@ public:
    float speed = 400;
 
    UPROPERTY(EditAnywhere)
-   float separation_weight = 1.5;
+   float separation_weight = .5;
 
    UPROPERTY(EditAnywhere)
-   float alignment_weight = 2;
+   float alignment_weight = .5;
 
    UPROPERTY(EditAnywhere)
-   float cohesion_weight = 2.5;
+   float cohesion_weight = .5;
 
    UPROPERTY(EditAnywhere)
-   float target_weight = 0;
+   float target_weight = 2;
 
    UPROPERTY(EditAnywhere)
-   float avoidObstacles_weight = 1.5;
+   float avoidObstacles_weight = .5;
 
    UPROPERTY(EditAnywhere)
-      float max_force = 1;
+   float max_force = 1;
 
 protected:
    // Called when the game starts or when spawned
@@ -61,6 +61,7 @@ public:
    // Called every frame
    virtual void Tick(float DeltaTime) override;
 
+private:
    // Separation: Steer to avoid crowding local flockmates
    FVector Separation(const std::vector<ABoid*>& flockMates);
 
