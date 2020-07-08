@@ -9,6 +9,7 @@
 class UCameraComponent;
 class USpringArmComponent;
 class UCapsuleComponent;
+class UMyPawnMovementComponent;
 
 UCLASS()
 class SOMETHINGFISHY_API APlayerPawn : public APawn
@@ -19,18 +20,24 @@ public:
 	// Sets default values for this pawn's properties
 	APlayerPawn();
 
+   UMyPawnMovementComponent* movementComponent;
+   virtual UPawnMovementComponent* GetMovementComponent() const override;
+
+
    UPROPERTY(VisibleAnywhere)
    UCapsuleComponent* collisionMesh;
+
+   UPROPERTY(EditAnywhere)
+   USpringArmComponent* springArm;
+
+   UPROPERTY(EditAnywhere)
+   UCameraComponent* camera;
 
    float maxSpeed = 5;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-   UPROPERTY(EditAnywhere)
-   USpringArmComponent* springArm;
-   UCameraComponent* camera;
 
 public:	
    // Called every frame
@@ -49,6 +56,6 @@ public:
    // Input variables
    FVector CurrentVelocity;
    FVector mouseInput;
-   FVector moveInput;
+   //FVector moveInput;
    bool placingBait;
 };

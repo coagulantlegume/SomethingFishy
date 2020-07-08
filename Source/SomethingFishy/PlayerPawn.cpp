@@ -2,9 +2,12 @@
 
 
 #include "PlayerPawn.h"
+
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "MyPawnMovementComponent.h"
+#include "Components/Inputcomponent.h"
 
 // Sets default values
 APlayerPawn::APlayerPawn()
@@ -20,7 +23,10 @@ APlayerPawn::APlayerPawn()
    RootComponent = collisionMesh;
    collisionMesh->InitCapsuleSize(60, 160);
    collisionMesh->SetCollisionProfileName(TEXT("Player"));
-   collisionMesh->SetupAttachment(RootComponent);
+   //collisionMesh->SetSimulatePhysics(true);
+   collisionMesh->BodyInstance.bLockXRotation = true;
+   collisionMesh->BodyInstance.bLockYRotation = true;
+   collisionMesh->BodyInstance.bLockZRotation = true;
 
    springArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpringArm"));
    springArm->SetupAttachment(RootComponent);
@@ -29,6 +35,14 @@ APlayerPawn::APlayerPawn()
    springArm->bEnableCameraLag = false;
    camera = CreateDefaultSubobject<UCameraComponent>(TEXT("GameCamera"));
    camera->SetupAttachment(springArm, USpringArmComponent::SocketName);
+
+   movementComponent = CreateDefaultSubobject<UMyPawnMovementComponent>(TEXT("CustomMovementComponent"));
+   movementComponent->UpdatedComponent = RootComponent;
+}
+
+UPawnMovementComponent* APlayerPawn::GetMovementComponent() const
+{
+   return movementComponent;
 }
 
 // Called when the game starts or when spawned
@@ -44,15 +58,12 @@ void APlayerPawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
    // Handle movement based on our "MoveX" and "MoveY" axes
-   if (!moveInput.IsZero())
-   {
-      moveInput = moveInput.GetClampedToMaxSize(maxSpeed);
-      //FVector NewLocation = GetActorLocation() + (moveInput * DeltaTime);
-      AddActorLocalOffset(moveInput, true);
-      //collisionMesh->BodyInstance.SetLinearVelocity(NewLocation, false, true);
-      //if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Velocity: (%d, %d, %d)"), collisionMesh->BodyInstance.));
-      moveInput *= 0.2;
-   }
+   //if (!moveInput.IsZero() && movementComponent && movementComponent->UpdatedComponent == RootComponent)
+   //{
+   //   moveInput = moveInput.GetClampedToMaxSize(maxSpeed);
+   //   AddActorLocalOffset(moveInput, true);
+   //   moveInput *= 0.2;
+   //}
    
 
    FRotator  newYaw = GetActorRotation();
@@ -83,13 +94,18 @@ void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 void APlayerPawn::Move_XAxis(float value)
 {
-
-   moveInput.X += FMath::Clamp(value, -1.0f, 1.0f) * maxSpeed;
+   if (movementComponent && movementComponent->UpdatedComponent == RootComponent)
+   {
+      movementComponent->AddInputVector(GetActorForwardVector() * FMath::Clamp(value, -1.0f, 1.0f));
+   }
 }
 
 void APlayerPawn::Move_YAxis(float value)
 {
-   moveInput.Y += FMath::Clamp(value, -1.0f, 1.0f) * maxSpeed;
+   if (movementComponent && movementComponent->UpdatedComponent == RootComponent)
+   {
+      movementComponent->AddInputVector(GetActorRightVector() * FMath::Clamp(value, -1.0f, 1.0f));
+   }
 }
 
 void APlayerPawn::CameraMoveX(float value)

@@ -9,6 +9,7 @@
 class ABoid;
 class ABaitManager;
 class ABait;
+class UMaterialInstance;
 
 UCLASS()
 class SOMETHINGFISHY_API AFlock : public AActor

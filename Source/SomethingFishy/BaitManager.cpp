@@ -27,7 +27,7 @@ void ABaitManager::Tick(float DeltaTime)
    for (int i = 0; i < this->worldBait.size(); ++i) {
       if (this->worldBait[i]->value <= 0)
       {
-         if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("HERE")));
+         // if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("HERE")));
          this->worldBait.erase(this->worldBait.begin() + i);
       }
    }

@@ -7,6 +7,7 @@
 
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 // Sets default values
 ABoid::ABoid()
@@ -248,3 +249,5 @@ bool ABoid::InBounds()
    }
    return oob;
 }
+
+
