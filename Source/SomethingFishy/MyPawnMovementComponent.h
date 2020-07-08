@@ -18,5 +18,5 @@ class SOMETHINGFISHY_API UMyPawnMovementComponent : public UPawnMovementComponen
 		virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* thisTickFunction) override;
 	
 	private:
-		float maxSpeed = 300;
+		float maxSpeed = 500;
 };

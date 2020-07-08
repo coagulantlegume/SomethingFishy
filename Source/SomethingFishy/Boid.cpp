@@ -37,6 +37,8 @@ ABoid::ABoid()
    this->ProjectileMovementComponent->bShouldBounce = true;
    this->ProjectileMovementComponent->Bounciness = 0.3f;
    this->ProjectileMovementComponent->ProjectileGravityScale = 0;
+
+   VisualMesh->SetCollisionProfileName(TEXT("Boids"));
 }
 
 // Called when the game starts or when spawned
@@ -250,4 +252,7 @@ bool ABoid::InBounds()
    return oob;
 }
 
-
+void ABoid::Remove()
+{
+   myFlock->Remove(this);
+}

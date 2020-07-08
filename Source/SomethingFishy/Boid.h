@@ -61,6 +61,9 @@ public:
    // Called every frame
    virtual void Tick(float DeltaTime) override;
 
+   // Caught, so remove from world
+   void Remove();
+
 private:
    // Separation: Steer to avoid crowding local flockmates
    FVector Separation(const std::vector<ABoid*>& flockMates);

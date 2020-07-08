@@ -2,6 +2,7 @@
 
 
 #include "PlayerPawn.h"
+#include "Arms.h"
 
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -35,6 +36,12 @@ APlayerPawn::APlayerPawn()
    springArm->bEnableCameraLag = false;
    camera = CreateDefaultSubobject<UCameraComponent>(TEXT("GameCamera"));
    camera->SetupAttachment(springArm, USpringArmComponent::SocketName);
+
+   // Create arms mesh
+   // armMesh = CreateDefaultSubobject<AArms>(TEXT("ArmMesh"));
+   // armMesh->SetupAttachment(camera);
+   // armMesh->bCastDynamicShadow = false;
+   // armMesh->CastShadow = false;
 
    movementComponent = CreateDefaultSubobject<UMyPawnMovementComponent>(TEXT("CustomMovementComponent"));
    movementComponent->UpdatedComponent = RootComponent;

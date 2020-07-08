@@ -51,3 +51,14 @@ void AFlock::GetVisibleFlockmates(ABoid* me, float perceptionRange, std::vector<
       }
    }
 }
+
+// Remove a specific boid from world
+void AFlock::Remove(ABoid* toRemove)
+{
+   for (int i = 0; i < this->flockSize; ++i) {
+      if (this->flockmates[i] == toRemove) {
+         this->flockmates.erase(this->flockmates.begin() + i);
+         toRemove->ConditionalBeginDestroy();
+      }
+   }
+}

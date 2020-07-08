@@ -10,6 +10,7 @@ class UCameraComponent;
 class USpringArmComponent;
 class UCapsuleComponent;
 class UMyPawnMovementComponent;
+class AArms;
 
 UCLASS()
 class SOMETHINGFISHY_API APlayerPawn : public APawn
@@ -32,6 +33,9 @@ public:
 
    UPROPERTY(EditAnywhere)
    UCameraComponent* camera;
+
+   UPROPERTY(EditAnywhere)
+   AArms* armMesh;
 
    float maxSpeed = 5;
 

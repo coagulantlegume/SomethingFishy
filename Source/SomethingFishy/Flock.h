@@ -34,6 +34,9 @@ public:
    // Return visible flock mates
    void GetVisibleFlockmates(ABoid* me, float perceptionRange, std::vector<ABoid*>& visibleBoids);
 
+   // Remove a specific boid from world
+   void Remove(ABoid* toRemove);
+
    // Array of all boids in flock
    std::vector<ABoid*> flockmates;
 
