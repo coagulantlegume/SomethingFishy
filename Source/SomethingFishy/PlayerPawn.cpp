@@ -9,6 +9,7 @@
 #include "Components/CapsuleComponent.h"
 #include "MyPawnMovementComponent.h"
 #include "Components/Inputcomponent.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values
 APlayerPawn::APlayerPawn()
@@ -62,16 +63,7 @@ void APlayerPawn::BeginPlay()
 // Called every frame
 void APlayerPawn::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
-
-   // Handle movement based on our "MoveX" and "MoveY" axes
-   //if (!moveInput.IsZero() && movementComponent && movementComponent->UpdatedComponent == RootComponent)
-   //{
-   //   moveInput = moveInput.GetClampedToMaxSize(maxSpeed);
-   //   AddActorLocalOffset(moveInput, true);
-   //   moveInput *= 0.2;
-   //}
-   
+	Super::Tick(DeltaTime);   
 
    FRotator  newYaw = GetActorRotation();
    newYaw.Yaw += mouseInput.X;
@@ -88,6 +80,7 @@ void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
    // Respond when PlaceBait key is pressed or released.
+   InputComponent->BindAction("Interact", IE_Pressed, this, &APlayerPawn::Interact);
    InputComponent->BindAction("PlaceBait", IE_Pressed, this, &APlayerPawn::PlaceBait);
    
    // Respond every frame to the values of our two movement axes, "MoveX" and "MoveY".
@@ -125,7 +118,34 @@ void APlayerPawn::CameraMoveY(float value)
    mouseInput.Y = -value;
 }
 
+void APlayerPawn::Interact()
+{
+   FHitResult interactActor = this->TraceCollision(reachDistance);
+}
+
 void APlayerPawn::PlaceBait()
 {
-   placingBait = true;
+   FHitResult interactActor = this->TraceCollision(reachDistance * 2);
+}
+
+FHitResult APlayerPawn::TraceCollision(float dist)
+{
+   FHitResult outHit;
+   FVector start = camera->GetComponentLocation();
+   FVector forwardVector = camera->GetForwardVector();
+   FVector end = (forwardVector * dist) + start;
+
+   FCollisionQueryParams collisionParams;
+   bool isHit = GetWorld()->LineTraceSingleByChannel(outHit, start, end, ECC_Visibility, collisionParams);
+
+   if (isHit)
+   {
+      if (outHit.bBlockingHit)
+      {
+         if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("You are hitting: %s"), *outHit.GetActor()->GetName()));
+      }
+   }
+   return outHit;
+
+   // DrawDebugLine(GetWorld(), start, end, FColor::Green, false, 1, 0, 1);
 }

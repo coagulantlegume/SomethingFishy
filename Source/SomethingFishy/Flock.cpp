@@ -44,10 +44,10 @@ void AFlock::BeginPlay()
 // Return visible flock mates
 void AFlock::GetVisibleFlockmates(ABoid* me, float perceptionRange, std::vector<ABoid*>& visibleBoids)
 {
-   for (int i = 0; i < this->flockSize; ++i) {
-      if (FVector::Dist(this->flockmates[i]->GetActorLocation(), me->GetActorLocation()) < perceptionRange &&
-         me != this->flockmates[i]) {
-         visibleBoids.push_back(this->flockmates[i]);
+   for (auto const& i : flockmates) {
+      if (FVector::Dist(i->GetActorLocation(), me->GetActorLocation()) < perceptionRange &&
+          me != i) {
+         visibleBoids.push_back(i);
       }
    }
 }
@@ -55,10 +55,17 @@ void AFlock::GetVisibleFlockmates(ABoid* me, float perceptionRange, std::vector<
 // Remove a specific boid from world
 void AFlock::Remove(ABoid* toRemove)
 {
-   for (int i = 0; i < this->flockSize; ++i) {
-      if (this->flockmates[i] == toRemove) {
-         this->flockmates.erase(this->flockmates.begin() + i);
-         toRemove->ConditionalBeginDestroy();
+   for (std::list<ABoid*>::iterator it = flockmates.begin(); it != flockmates.end(); ++it) {
+      if (*it == toRemove) {
+         flockmates.erase(it);
+         (*it)->ConditionalBeginDestroy();
+         return;
       }
    }
 }
+
+// Respawn boid at edge of world
+//void AFlock::Respawn(ABoid* toRespawn)
+//{
+//   toRespawn->SetActorLocation()
+//}

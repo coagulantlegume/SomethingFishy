@@ -38,7 +38,7 @@ public:
    void Remove(ABoid* toRemove);
 
    // Array of all boids in flock
-   std::vector<ABoid*> flockmates;
+   std::list<ABoid*> flockmates;
 
    // Number of boids in flock
    UPROPERTY(EditAnywhere)
@@ -50,7 +50,7 @@ public:
 
    // Buffer for turning off senses outside of bounds before teleporting
    UPROPERTY(EditAnywhere)
-      float boundsBuffer = 100;
+      float boundsBuffer = 200;
 
    // UClass of actors to spawn as flockmates
    UPROPERTY(EditAnywhere)

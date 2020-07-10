@@ -55,11 +55,16 @@ public:
    void Move_YAxis(float value);
    void CameraMoveX(float value);
    void CameraMoveY(float value);
+   void Interact();
    void PlaceBait();
+   FHitResult TraceCollision(float dist);
 
    // Input variables
    FVector CurrentVelocity;
    FVector mouseInput;
    //FVector moveInput;
    bool placingBait;
+
+   // The distance player can reach objects
+   float reachDistance = 500;
 };

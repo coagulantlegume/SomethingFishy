@@ -25,7 +25,7 @@ ABoid::ABoid()
    {
       this->VisualMesh->SetStaticMesh(SphereVisualAsset.Object);
       this->VisualMesh->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
-      this->VisualMesh->SetRelativeScale3D(FVector(0.25, 0.1, 0.1));
+      this->VisualMesh->SetRelativeScale3D(FVector(0.5, 0.2, 0.2));
    }
 
    // Set up projectile component
