@@ -65,7 +65,7 @@ void ABoid::Tick(float DeltaTime)
       moveDirection += this->Alignment(curr_flockmates) * this->alignment_weight;
       moveDirection += this->Cohesion(curr_flockmates) * this->cohesion_weight;
    }
-   if (this->myFlock->baitManager->NotEmpty())
+   if (this->myFlock->baitManager && this->myFlock->baitManager->NotEmpty())
    {
       moveDirection += this->Target() * this->target_weight;
    }
@@ -85,7 +85,7 @@ void ABoid::Tick(float DeltaTime)
 // Separation: Steer to avoid crowding local flockmates
 FVector ABoid::Separation(const std::vector<ABoid*>& flockmates)
 {
-   FVector force(0,0,0);
+   FVector force(0, 0, 0);
    FVector loc = this->GetActorLocation();
    for (unsigned int i = 0; i < flockmates.size(); ++i)
    {
@@ -102,7 +102,7 @@ FVector ABoid::Separation(const std::vector<ABoid*>& flockmates)
    force -= this->ProjectileMovementComponent->Velocity;
    force.Normalize(this->max_force);
 
-   if (force.Size() < this->speed * 100 && force.Size() > -this->speed * 100) 
+   if (force.Size() < this->speed * 100 && force.Size() > -this->speed * 100)
    {
       return force;
    }
@@ -140,7 +140,7 @@ FVector ABoid::Alignment(const std::vector<ABoid*>& flockmates)
 // Cohesion: Steer to move toward the average position of local flockmates
 FVector ABoid::Cohesion(const std::vector<ABoid*>& flockmates)
 {
-   FVector position = FVector(0,0,0);
+   FVector position = FVector(0, 0, 0);
    for (unsigned int i = 0; i < flockmates.size(); ++i)
    {
       position += flockmates[i]->GetActorLocation();
@@ -165,7 +165,7 @@ FVector ABoid::Cohesion(const std::vector<ABoid*>& flockmates)
 // Steer toward closest target, if in perception range
 FVector ABoid::Target()
 {
-   FVector force = FVector(0,0,0);
+   FVector force = FVector(0, 0, 0);
    ABait* nearbyBait = this->myFlock->baitManager->GetNearestBait(this->GetActorLocation());
    if (!nearbyBait)
    {
@@ -190,7 +190,7 @@ FVector ABoid::Target()
 // Obstacle/bounds check
 FVector ABoid::AvoidObstacles()
 {
-   FVector force = FVector(0,0,0);
+   FVector force = FVector(0, 0, 0);
    FVector loc = this->GetActorLocation();
    // Avoid ground
    if (loc.Z < this->perceptionRange / 3)
@@ -204,7 +204,7 @@ FVector ABoid::AvoidObstacles()
       //UE_LOG(LogTemp, Warning, TEXT("%f"), this->GetActorLocation().Z)
    }
 
-   if (force.Size()) 
+   if (force.Size())
    {
       force /= force.Size();
       force *= this->speed;
@@ -234,8 +234,8 @@ bool ABoid::InBounds()
    if (diffX < -this->myFlock->boundsBuffer)
    {
       this->SetActorLocation(FVector(
-         -loc.X, 
-         UKismetMathLibrary::RandomFloat() * this->myFlock->bounds.Y - this->myFlock->bounds.Y / 2, 
+         -loc.X,
+         UKismetMathLibrary::RandomFloat() * this->myFlock->bounds.Y - this->myFlock->bounds.Y / 2,
          loc.Z
       ));
       oob = false;
@@ -243,8 +243,8 @@ bool ABoid::InBounds()
    if (diffY < -this->myFlock->boundsBuffer)
    {
       this->SetActorLocation(FVector(
-         UKismetMathLibrary::RandomFloat() * this->myFlock->bounds.X - this->myFlock->bounds.X / 2, 
-         -loc.Y, 
+         UKismetMathLibrary::RandomFloat() * this->myFlock->bounds.X - this->myFlock->bounds.X / 2,
+         -loc.Y,
          loc.Z
       ));
       oob = false;

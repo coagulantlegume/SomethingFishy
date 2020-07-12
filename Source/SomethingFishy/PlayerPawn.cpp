@@ -2,7 +2,9 @@
 
 
 #include "PlayerPawn.h"
-#include "Arms.h"
+#include "Boid.h"
+#include "ShopKeep.h"
+#include "BaitManager.h"
 
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -37,12 +39,6 @@ APlayerPawn::APlayerPawn()
    springArm->bEnableCameraLag = false;
    camera = CreateDefaultSubobject<UCameraComponent>(TEXT("GameCamera"));
    camera->SetupAttachment(springArm, USpringArmComponent::SocketName);
-
-   // Create arms mesh
-   // armMesh = CreateDefaultSubobject<AArms>(TEXT("ArmMesh"));
-   // armMesh->SetupAttachment(camera);
-   // armMesh->bCastDynamicShadow = false;
-   // armMesh->CastShadow = false;
 
    movementComponent = CreateDefaultSubobject<UMyPawnMovementComponent>(TEXT("CustomMovementComponent"));
    movementComponent->UpdatedComponent = RootComponent;
@@ -120,12 +116,26 @@ void APlayerPawn::CameraMoveY(float value)
 
 void APlayerPawn::Interact()
 {
-   FHitResult interactActor = this->TraceCollision(reachDistance);
+   FHitResult outHit = this->TraceCollision(reachDistance);
+
+   if (outHit.bBlockingHit && outHit.GetActor()->IsA(ABoid::StaticClass()))
+   {
+      ((ABoid*)outHit.GetActor())->Remove();
+   }
+   else if (outHit.bBlockingHit && outHit.GetActor()->IsA(AShopKeep::StaticClass()))
+   {
+
+   }
 }
 
 void APlayerPawn::PlaceBait()
 {
-   FHitResult interactActor = this->TraceCollision(reachDistance * 2);
+   FHitResult outHit = this->TraceCollision(reachDistance * 2);
+
+   if (outHit.bBlockingHit && *outHit.GetActor()->GetName() == FString("Floor"))
+   {
+      baitManager->SpawnBait(outHit.ImpactPoint);
+   }
 }
 
 FHitResult APlayerPawn::TraceCollision(float dist)

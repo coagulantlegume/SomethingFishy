@@ -13,51 +13,51 @@ UCLASS()
 class SOMETHINGFISHY_API ABoid : public AActor
 {
    GENERATED_BODY()
-   
-public:	
+
+public:
    // Sets default values for this actor's properties
    ABoid();
 
    // mesh body to be replaced later
    UPROPERTY(VisibleAnywhere)
-   UStaticMeshComponent* VisualMesh;
+      UStaticMeshComponent* VisualMesh;
 
    // movement component for velocity
    UPROPERTY(VisibleAnywhere)
-   UProjectileMovementComponent* ProjectileMovementComponent;
+      UProjectileMovementComponent* ProjectileMovementComponent;
 
    UPROPERTY(EditAnywhere)
-   AFlock* myFlock;
+      AFlock* myFlock;
 
    UPROPERTY(EditAnywhere)
-   float perceptionRange = 300;
+      float perceptionRange = 300;
 
    UPROPERTY(EditAnywhere)
-   float speed = 400;
+      float speed = 400;
 
    UPROPERTY(EditAnywhere)
-   float separation_weight = 1.5;
+      float separation_weight = 1.5;
 
    UPROPERTY(EditAnywhere)
-   float alignment_weight = 2;
+      float alignment_weight = 2;
 
    UPROPERTY(EditAnywhere)
-   float cohesion_weight = 2.5;
+      float cohesion_weight = 2.5;
 
    UPROPERTY(EditAnywhere)
-   float target_weight = 3;
+      float target_weight = 3;
 
    UPROPERTY(EditAnywhere)
-   float avoidObstacles_weight = 1.5;
+      float avoidObstacles_weight = 1.5;
 
    UPROPERTY(EditAnywhere)
-   float max_force = 1;
+      float max_force = 1;
 
 protected:
    // Called when the game starts or when spawned
    virtual void BeginPlay() override;
 
-public:	
+public:
    // Called every frame
    virtual void Tick(float DeltaTime) override;
 

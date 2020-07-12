@@ -11,6 +11,7 @@ class USpringArmComponent;
 class UCapsuleComponent;
 class UMyPawnMovementComponent;
 class AArms;
+class ABaitManager;
 
 UCLASS()
 class SOMETHINGFISHY_API APlayerPawn : public APawn
@@ -35,7 +36,7 @@ public:
    UCameraComponent* camera;
 
    UPROPERTY(EditAnywhere)
-   AArms* armMesh;
+      ABaitManager* baitManager;
 
    float maxSpeed = 5;
 

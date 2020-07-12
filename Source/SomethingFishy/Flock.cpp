@@ -3,9 +3,11 @@
 #include "Flock.h"
 #include "Boid.h"
 #include "BaitManager.h"
+#include "PlayerPawn.h"
 
 #include "Engine/World.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AFlock::AFlock()
@@ -28,17 +30,12 @@ void AFlock::BeginPlay()
    {
       // set random position within bounds
       location.FVector::Set(UKismetMathLibrary::RandomFloat() * this->bounds.X - this->bounds.X / 2,
-                            UKismetMathLibrary::RandomFloat() * this->bounds.Y - this->bounds.Y / 2,
-                            UKismetMathLibrary::RandomFloat() * this->bounds.Z);
+         UKismetMathLibrary::RandomFloat() * this->bounds.Y - this->bounds.Y / 2,
+         UKismetMathLibrary::RandomFloat() * this->bounds.Z);
       ABoid* newFlockmate = (ABoid*)world->UWorld::SpawnActor(ActorToSpawn, &location, 0);
       newFlockmate->myFlock = this;
       this->flockmates.push_back(newFlockmate);
    }
-
-   // TODO: Have world bait manager variable to connect to so player has access
-   this->baitManager = (ABaitManager*)world->UWorld::SpawnActor(BaitManagerActor, 0, 0);
-   this->baitManager->ActorToSpawn = this->BaitActorToSpawn;
-   this->baitManager->SpawnBait(FVector(0, 0, 0)); // spawn one bait, just to test
 }
 
 // Return visible flock mates
@@ -46,7 +43,7 @@ void AFlock::GetVisibleFlockmates(ABoid* me, float perceptionRange, std::vector<
 {
    for (auto const& i : flockmates) {
       if (FVector::Dist(i->GetActorLocation(), me->GetActorLocation()) < perceptionRange &&
-          me != i) {
+         me != i) {
          visibleBoids.push_back(i);
       }
    }

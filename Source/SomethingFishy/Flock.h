@@ -10,18 +10,22 @@ class ABoid;
 class ABaitManager;
 class ABait;
 class UMaterialInstance;
+class APlayerPawn;
 
 UCLASS()
 class SOMETHINGFISHY_API AFlock : public AActor
 {
    GENERATED_BODY()
-   
-public:	
+
+public:
    // Sets default values for this actor's properties
    AFlock();
 
-   UPROPERTY(VisibleAnywhere)
+   UPROPERTY(EditAnywhere)
       ABaitManager* baitManager;
+
+   UPROPERTY(EditAnywhere)
+      APlayerPawn* player;
 
 protected:
    // Called when the game starts or when spawned
@@ -46,7 +50,7 @@ public:
 
    // Bounding limits of flock movement
    UPROPERTY(EditAnywhere)
-      FVector bounds = FVector(200,200,200);
+      FVector bounds = FVector(200, 200, 200);
 
    // Buffer for turning off senses outside of bounds before teleporting
    UPROPERTY(EditAnywhere)

@@ -12,8 +12,8 @@ UCLASS()
 class SOMETHINGFISHY_API ABaitManager : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	ABaitManager();
 
@@ -36,7 +36,7 @@ protected:
 	// Container of bait 
 	std::vector<ABait*> worldBait;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

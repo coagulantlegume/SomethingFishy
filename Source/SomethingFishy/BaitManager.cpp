@@ -7,23 +7,23 @@
 // Sets default values
 ABaitManager::ABaitManager()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+   // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+   PrimaryActorTick.bCanEverTick = true;
 
-	// reserve minimal expected space for bait
-	worldBait.reserve(4);
+   // reserve minimal expected space for bait
+   worldBait.reserve(4);
 }
 
 // Called when the game starts or when spawned
 void ABaitManager::BeginPlay()
 {
-	Super::BeginPlay();
+   Super::BeginPlay();
 }
 
 // Called every frame
 void ABaitManager::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+   Super::Tick(DeltaTime);
    for (int i = 0; i < this->worldBait.size(); ++i) {
       if (this->worldBait[i]->value <= 0)
       {
@@ -36,7 +36,7 @@ void ABaitManager::Tick(float DeltaTime)
 // Check if there is any bait currently spawned in the world
 bool ABaitManager::NotEmpty()
 {
-	return !this->worldBait.empty();
+   return !this->worldBait.empty();
 }
 
 // Spawn bait at specified location
@@ -44,7 +44,7 @@ void ABaitManager::SpawnBait(const FVector& loc)
 {
    UWorld* world = GetWorld();
    ABait* newBait = (ABait*)world->UWorld::SpawnActor(ActorToSpawn, &loc, 0);
-	this->worldBait.push_back(newBait);
+   this->worldBait.push_back(newBait);
 }
 
 // Get bait nearest location
@@ -65,9 +65,8 @@ ABait* ABaitManager::GetNearestBait(const FVector& loc)
          nearestDist = dist;
       }
    }
-   if (nearestDist < 300) {
+   if (nearestDist < 600) {
       return nearestBait;
    }
    return NULL;
 }
-
