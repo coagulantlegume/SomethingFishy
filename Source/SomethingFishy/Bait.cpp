@@ -14,14 +14,17 @@ ABait::ABait()
    this->VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
    this->VisualMesh->SetupAttachment(RootComponent);
 
-   static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeVisualAsset(TEXT("/Game/StarterContent/Shapes/Shape_Cube.Shape_Cube"));
+   static ConstructorHelpers::FObjectFinder<UStaticMesh> VisualAsset(TEXT("/Game/Bait/bait.bait"));
 
-   if (CubeVisualAsset.Succeeded())
+   if (VisualAsset.Succeeded())
    {
-      this->VisualMesh->SetStaticMesh(CubeVisualAsset.Object);
+      this->VisualMesh->SetStaticMesh(VisualAsset.Object);
       // this->VisualMesh->SetRelativeLocation(spawnLocation);
-      this->VisualMesh->SetRelativeScale3D(FVector(this->value / 32 + .2, this->value / 32 + .2, this->value / 32 + .2));
+      this->VisualMesh->SetRelativeScale3D(FVector(this->value * 50 / 32 + 5, this->value * 50 / 32 + 5, this->value * 50 / 32 + 5));
    }
+   
+   // set starting value
+   value = 16;
 }
 
 // Called when the game starts or when spawned
@@ -48,8 +51,7 @@ void ABait::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, cl
       --this->value;
       if (this->value > 0)
       {
-         this->VisualMesh->SetRelativeScale3D(FVector(this->value / 32 + .2, this->value / 32 + .2, this->value / 32 + .2));
-         // if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Size: %f, %d"), this->GetActorScale().X, this->value));
+         this->VisualMesh->SetRelativeScale3D(FVector(this->value * 50 / 32 + 5, this->value * 50 / 32 + 5, this->value * 50 / 32 + 5));
       }
       else
       {
