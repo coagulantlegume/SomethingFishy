@@ -44,6 +44,7 @@ void ABaitManager::SpawnBait(const FVector& loc)
 {
    UWorld* world = GetWorld();
    ABait* newBait = (ABait*)world->UWorld::SpawnActor(ActorToSpawn, &loc, 0);
+   newBait->VisualMesh->SetMaterial(0, SpawnMaterial);
    this->worldBait.push_back(newBait);
 }
 
@@ -65,7 +66,7 @@ ABait* ABaitManager::GetNearestBait(const FVector& loc)
          nearestDist = dist;
       }
    }
-   if (nearestDist < 600) {
+   if (nearestDist < 1500) {
       return nearestBait;
    }
    return NULL;

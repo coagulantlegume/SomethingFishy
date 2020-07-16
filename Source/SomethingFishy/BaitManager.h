@@ -43,4 +43,8 @@ public:
 	// UClass of actors to spawn as bait
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<ABait> ActorToSpawn;
+
+	// Bait material
+	UPROPERTY(EditAnywhere)
+		UMaterialInterface* SpawnMaterial;
 };

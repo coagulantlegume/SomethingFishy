@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "Bait.generated.h"
 
+class BaitManager;
+
 UCLASS()
 class SOMETHINGFISHY_API ABait : public AActor
 {
@@ -26,6 +28,8 @@ public:
 	// spawn location
 	UPROPERTY(VisibleAnywhere)
 		FVector spawnLocation;
+
+	BaitManager* baitManager;
 
 protected:
 	// Called when the game starts or when spawned

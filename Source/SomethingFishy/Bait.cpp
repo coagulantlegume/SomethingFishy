@@ -3,6 +3,7 @@
 
 #include "Bait.h"
 #include "Boid.h"
+#include "BaitManager.h"
 
 // Sets default values
 ABait::ABait()
@@ -20,7 +21,7 @@ ABait::ABait()
    {
       this->VisualMesh->SetStaticMesh(VisualAsset.Object);
       // this->VisualMesh->SetRelativeLocation(spawnLocation);
-      this->VisualMesh->SetRelativeScale3D(FVector(this->value * 50 / 32 + 5, this->value * 50 / 32 + 5, this->value * 50 / 32 + 5));
+      this->VisualMesh->SetRelativeScale3D(FVector(this->value * 128 / 32 + 5, this->value * 128 / 32 + 5, this->value * 128 / 32 + 5));
    }
    
    // set starting value
@@ -51,7 +52,7 @@ void ABait::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, cl
       --this->value;
       if (this->value > 0)
       {
-         this->VisualMesh->SetRelativeScale3D(FVector(this->value * 50 / 32 + 5, this->value * 50 / 32 + 5, this->value * 50 / 32 + 5));
+         this->VisualMesh->SetRelativeScale3D(FVector(this->value * 128 / 32 + 5, this->value * 128 / 32 + 5, this->value * 128 / 32 + 5));
       }
       else
       {

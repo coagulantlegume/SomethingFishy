@@ -29,8 +29,8 @@ void AFlock::BeginPlay()
    for (int i = 0; i < this->flockSize; ++i)
    {
       // set random position within bounds
-      location.FVector::Set(UKismetMathLibrary::RandomFloat() * this->bounds.X - this->bounds.X / 2,
-         UKismetMathLibrary::RandomFloat() * this->bounds.Y - this->bounds.Y / 2,
+      location.FVector::Set(UKismetMathLibrary::RandomFloat() * this->bounds.X,
+         UKismetMathLibrary::RandomFloat() * this->bounds.Y,
          UKismetMathLibrary::RandomFloat() * this->bounds.Z);
       ABoid* newFlockmate = (ABoid*)world->UWorld::SpawnActor(ActorToSpawn, &location, 0);
       newFlockmate->myFlock = this;

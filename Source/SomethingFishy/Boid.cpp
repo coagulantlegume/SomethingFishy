@@ -227,28 +227,80 @@ bool ABoid::InBounds()
 {
    // AABB bounds checking
    FVector loc = this->GetActorLocation();
-   float diffX = this->myFlock->bounds.X / 2 - abs(loc.X);
-   float diffY = this->myFlock->bounds.Y / 2 - abs(loc.Y);
+   // float diffX = this->myFlock->bounds.X / 2 - abs(loc.X);
+   // float diffY = this->myFlock->bounds.Y / 2 - abs(loc.Y);
    bool oob = true; // out of bounds flag
 
-   if (diffX < -this->myFlock->boundsBuffer)
+   // if (diffX < -this->myFlock->boundsBuffer)
+   // {
+   //    this->SetActorLocation(FVector(
+   //       -loc.X,
+   //       UKismetMathLibrary::RandomFloat() * this->myFlock->bounds.Y,
+   //       loc.Z
+   //    ));
+   //    oob = false;
+   // }
+   // if (diffY < -this->myFlock->boundsBuffer)
+   // {
+   //    this->SetActorLocation(FVector(
+   //       UKismetMathLibrary::RandomFloat() * this->myFlock->bounds.X,
+   //       -loc.Y,
+   //       loc.Z
+   //    ));
+   //    oob = false;
+   // }
+
+   if (this->GetActorLocation().X > this->myFlock->bounds.X)
    {
-      this->SetActorLocation(FVector(
-         -loc.X,
-         UKismetMathLibrary::RandomFloat() * this->myFlock->bounds.Y - this->myFlock->bounds.Y / 2,
-         loc.Z
-      ));
-      oob = false;
+      oob = true; // out of bounds
+      if (this->GetActorLocation().X - this->myFlock->bounds.X > this->myFlock->boundsBuffer) // out of buffer, wrap 
+      {
+         this->SetActorLocation(FVector(
+            0,
+            UKismetMathLibrary::RandomFloat() * this->myFlock->bounds.Y,
+            loc.Z
+         ));
+      }
    }
-   if (diffY < -this->myFlock->boundsBuffer)
+   else if (this->GetActorLocation().X < 0)
    {
-      this->SetActorLocation(FVector(
-         UKismetMathLibrary::RandomFloat() * this->myFlock->bounds.X - this->myFlock->bounds.X / 2,
-         -loc.Y,
-         loc.Z
-      ));
-      oob = false;
+      oob = true; // out of bounds
+      if (this->GetActorLocation().X < -this->myFlock->boundsBuffer) // out of buffer, wrap 
+      {
+         this->SetActorLocation(FVector(
+            this->myFlock->bounds.X,
+            UKismetMathLibrary::RandomFloat() * this->myFlock->bounds.Y,
+            loc.Z
+         ));
+      }
    }
+
+   if (this->GetActorLocation().Y > this->myFlock->bounds.Y)
+   {
+      oob = true; // out of bounds
+      if (this->GetActorLocation().Y - this->myFlock->bounds.Y > this->myFlock->boundsBuffer) // out of buffer, wrap 
+      {
+         this->SetActorLocation(FVector(
+            UKismetMathLibrary::RandomFloat() * this->myFlock->bounds.X,
+            0,
+            loc.Z
+         ));
+      }
+   }
+   else if (this->GetActorLocation().Y < 0)
+   {
+      oob = true; // out of bounds
+      if (this->GetActorLocation().Y < -this->myFlock->boundsBuffer) // out of buffer, wrap 
+      {
+         this->SetActorLocation(FVector(
+            UKismetMathLibrary::RandomFloat() * this->myFlock->bounds.X,
+            this->myFlock->bounds.Y,
+            loc.Z
+         ));
+      }
+   }
+
+
    return oob;
 }
 
