@@ -59,7 +59,7 @@ void ABoid::Tick(float DeltaTime)
    FVector moveDirection = GetActorRotation().Vector();
 
    // Calculate logic forces
-   if (this->InBounds() && curr_flockmates.size())
+   if (curr_flockmates.size())
    {
       moveDirection += this->Separation(curr_flockmates) * this->separation_weight;
       moveDirection += this->Alignment(curr_flockmates) * this->alignment_weight;
@@ -69,6 +69,7 @@ void ABoid::Tick(float DeltaTime)
    {
       moveDirection += this->Target() * this->target_weight;
    }
+   moveDirection += this->Bounds() * this->bounds_weight;
    moveDirection += this->AvoidObstacles() * this->avoidObstacles_weight;
 
    // Temporary fix for occasional garbage moveDirection which propagates. fix later
@@ -192,16 +193,70 @@ FVector ABoid::AvoidObstacles()
 {
    FVector force = FVector(0, 0, 0);
    FVector loc = this->GetActorLocation();
-   // Avoid ground
-   if (loc.Z - 200 < this->perceptionRange / 3)
+
+   // Avoid beacon
    {
-      force.Z += this->perceptionRange / 3 - loc.Z;
+      float dist = FVector::Dist(loc, myFlock->beaconLocation);
+      if (dist > perceptionRange * 2) {
+         FVector diff = loc - myFlock->beaconLocation;
+         diff *= diff.Size();
+         diff /= dist;
+         force += diff;
+      }
+
+      if (force.Size())
+      {
+         force /= force.Size();
+         force *= this->speed;
+         force.Z -= this->ProjectileMovementComponent->Velocity.Z;
+         force.Normalize(this->max_force);
+      }
    }
-   // Avoid going too high
+
+   if (force.Size() < this->speed * 100 && force.Size() > -this->speed * 100)
+   {
+      return force;
+   }
+   else
+   {
+      return FVector(0, 0, 0);
+   }
+}
+
+// Steer away from bounds
+FVector ABoid::Bounds()
+{
+   FVector force = FVector(0, 0, 0);
+   FVector loc = this->GetActorLocation();
+
+   // Z bound check
+   if (loc.Z - 200 < this->perceptionRange / 2)
+   {
+      force.Z += this->perceptionRange / 2 - (loc.Z - 200);
+   }
    else if (loc.Z > this->myFlock->bounds.Z - this->perceptionRange / 3)
    {
       force.Z += (this->myFlock->bounds.Z - this->perceptionRange / 3) - loc.Z;
-      //UE_LOG(LogTemp, Warning, TEXT("%f"), this->GetActorLocation().Z)
+   }
+
+   // X bound check
+   if (loc.X - myFlock->boundsBuffer < this->perceptionRange / 3)
+   {
+      force.X += this->perceptionRange / 3 - loc.X;
+   }
+   else if (loc.X > this->myFlock->bounds.X + myFlock->boundsBuffer - this->perceptionRange / 3)
+   {
+      force.X += (this->myFlock->bounds.X - this->perceptionRange / 3) - loc.X;
+   }
+
+   // Y bound check
+   if (loc.Y - myFlock->boundsBuffer < this->perceptionRange / 3)
+   {
+      force.Y += this->perceptionRange / 3 - loc.Y;
+   }
+   else if (loc.Y > this->myFlock->bounds.Y + myFlock->boundsBuffer - this->perceptionRange / 3)
+   {
+      force.Y += (this->myFlock->bounds.Y - this->perceptionRange / 3) - loc.Y;
    }
 
    if (force.Size())
@@ -220,88 +275,6 @@ FVector ABoid::AvoidObstacles()
    {
       return FVector(0, 0, 0);
    }
-}
-
-// Check bounds, start fade if out of bounds
-bool ABoid::InBounds()
-{
-   // AABB bounds checking
-   FVector loc = this->GetActorLocation();
-   // float diffX = this->myFlock->bounds.X / 2 - abs(loc.X);
-   // float diffY = this->myFlock->bounds.Y / 2 - abs(loc.Y);
-   bool oob = true; // out of bounds flag
-
-   // if (diffX < -this->myFlock->boundsBuffer)
-   // {
-   //    this->SetActorLocation(FVector(
-   //       -loc.X,
-   //       UKismetMathLibrary::RandomFloat() * this->myFlock->bounds.Y,
-   //       loc.Z
-   //    ));
-   //    oob = false;
-   // }
-   // if (diffY < -this->myFlock->boundsBuffer)
-   // {
-   //    this->SetActorLocation(FVector(
-   //       UKismetMathLibrary::RandomFloat() * this->myFlock->bounds.X,
-   //       -loc.Y,
-   //       loc.Z
-   //    ));
-   //    oob = false;
-   // }
-
-   if (this->GetActorLocation().X > this->myFlock->bounds.X)
-   {
-      oob = true; // out of bounds
-      if (this->GetActorLocation().X - this->myFlock->bounds.X > this->myFlock->boundsBuffer) // out of buffer, wrap 
-      {
-         this->SetActorLocation(FVector(
-            0,
-            UKismetMathLibrary::RandomFloat() * this->myFlock->bounds.Y,
-            loc.Z
-         ));
-      }
-   }
-   else if (this->GetActorLocation().X < 0)
-   {
-      oob = true; // out of bounds
-      if (this->GetActorLocation().X < -this->myFlock->boundsBuffer) // out of buffer, wrap 
-      {
-         this->SetActorLocation(FVector(
-            this->myFlock->bounds.X,
-            UKismetMathLibrary::RandomFloat() * this->myFlock->bounds.Y,
-            loc.Z
-         ));
-      }
-   }
-
-   if (this->GetActorLocation().Y > this->myFlock->bounds.Y)
-   {
-      oob = true; // out of bounds
-      if (this->GetActorLocation().Y - this->myFlock->bounds.Y > this->myFlock->boundsBuffer) // out of buffer, wrap 
-      {
-         this->SetActorLocation(FVector(
-            UKismetMathLibrary::RandomFloat() * this->myFlock->bounds.X,
-            0,
-            loc.Z
-         ));
-      }
-   }
-   else if (this->GetActorLocation().Y < 0)
-   {
-      oob = true; // out of bounds
-      if (this->GetActorLocation().Y < -this->myFlock->boundsBuffer) // out of buffer, wrap 
-      {
-         this->SetActorLocation(FVector(
-            UKismetMathLibrary::RandomFloat() * this->myFlock->bounds.X,
-            this->myFlock->bounds.Y,
-            loc.Z
-         ));
-      }
-   }
-
-
-   return oob;
 }
 
 void ABoid::Remove()

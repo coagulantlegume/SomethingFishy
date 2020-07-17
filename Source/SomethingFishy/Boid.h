@@ -48,7 +48,13 @@ public:
       float target_weight = 3;
 
    UPROPERTY(EditAnywhere)
-      float avoidObstacles_weight = 1.5;
+      float avoidObstacles_weight = 0;
+
+   UPROPERTY(EditAnywhere)
+      float bounds_weight = 1.5;
+
+   UPROPERTY(EditAnywhere)
+      float avoidPlayer_weight = 1.5;
 
    UPROPERTY(EditAnywhere)
       float max_force = .5;
@@ -80,6 +86,6 @@ private:
    // Steer away from obstacles
    FVector AvoidObstacles();
 
-   // Check bounds, start fade if out of bounds
-   bool InBounds();
+   // Steer away from bounds
+   FVector Bounds();
 };

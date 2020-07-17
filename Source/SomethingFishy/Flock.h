@@ -11,6 +11,7 @@ class ABaitManager;
 class ABait;
 class UMaterialInstance;
 class APlayerPawn;
+class AShopKeep;
 
 UCLASS()
 class SOMETHINGFISHY_API AFlock : public AActor
@@ -26,6 +27,11 @@ public:
 
    UPROPERTY(EditAnywhere)
       APlayerPawn* player;
+
+   UPROPERTY(EditAnywhere)
+      AShopKeep* shopKeep;
+
+   FVector beaconLocation;
 
 protected:
    // Called when the game starts or when spawned

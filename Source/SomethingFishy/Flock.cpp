@@ -4,6 +4,7 @@
 #include "Boid.h"
 #include "BaitManager.h"
 #include "PlayerPawn.h"
+#include "ShopKeep.h"
 
 #include "Engine/World.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -36,6 +37,10 @@ void AFlock::BeginPlay()
       newFlockmate->myFlock = this;
       this->flockmates.push_back(newFlockmate);
    }
+
+   // Calculate beacon location
+   FVector shopLoc = shopKeep->GetActorLocation();
+   beaconLocation = FVector(shopLoc.X, shopLoc.Y, shopLoc.Z + 500);
 }
 
 // Return visible flock mates
