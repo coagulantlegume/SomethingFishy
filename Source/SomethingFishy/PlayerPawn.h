@@ -38,7 +38,7 @@ public:
    UPROPERTY(EditAnywhere)
       ABaitManager* baitManager;
 
-   float maxSpeed = 5;
+   float maxSpeed = 7;
 
 protected:
 	// Called when the game starts or when spawned

@@ -19,13 +19,13 @@ ABoid::ABoid()
    this->VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
    this->VisualMesh->SetupAttachment(RootComponent);
 
-   static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereVisualAsset(TEXT("/Game/StarterContent/Shapes/Shape_Sphere.Shape_Sphere"));
+   static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereVisualAsset(TEXT("/Game/LPAnimals/Meshes/Fish.Fish"));
 
    if (SphereVisualAsset.Succeeded())
    {
       this->VisualMesh->SetStaticMesh(SphereVisualAsset.Object);
       this->VisualMesh->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
-      this->VisualMesh->SetRelativeScale3D(FVector(0.5, 0.2, 0.2));
+      this->VisualMesh->SetRelativeScale3D(FVector(0.4, 0.4, 0.4));
    }
 
    // Set up projectile component
@@ -193,7 +193,7 @@ FVector ABoid::AvoidObstacles()
    FVector force = FVector(0, 0, 0);
    FVector loc = this->GetActorLocation();
    // Avoid ground
-   if (loc.Z < this->perceptionRange / 3)
+   if (loc.Z - 200 < this->perceptionRange / 3)
    {
       force.Z += this->perceptionRange / 3 - loc.Z;
    }

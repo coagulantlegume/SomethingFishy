@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "ShopKeep.generated.h"
 
+class UBoxComponent;
+
 UCLASS()
 class SOMETHINGFISHY_API AShopKeep : public AActor
 {

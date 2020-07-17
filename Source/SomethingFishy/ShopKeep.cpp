@@ -4,6 +4,8 @@
 #include "ShopKeep.h"
 #include "PlayerPawn.h"
 
+#include "Components/BoxComponent.h"
+
 // Sets default values
 AShopKeep::AShopKeep()
 {
@@ -14,15 +16,12 @@ AShopKeep::AShopKeep()
    this->VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
    RootComponent = VisualMesh;
 
-   static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeVisualAsset(TEXT("/Game/StarterContent/Shapes/Shape_Cube.Shape_Cube"));
+   static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeVisualAsset(TEXT("/Game/LPAnimals/Meshes/Turtle.Turtle"));
 
    if (CubeVisualAsset.Succeeded())
    {
       this->VisualMesh->SetStaticMesh(CubeVisualAsset.Object);
    }
-   VisualMesh->SetCollisionProfileName(TEXT("ShopKeep"));
-
-   VisualMesh->OnComponentBeginOverlap.AddDynamic(this, &AShopKeep::OnOverlapBegin);
 }
 
 // Called when the game starts or when spawned

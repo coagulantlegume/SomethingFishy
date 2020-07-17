@@ -33,10 +33,10 @@ public:
       float perceptionRange = 300;
 
    UPROPERTY(EditAnywhere)
-      float speed = 400;
+      float speed = 700;
 
    UPROPERTY(EditAnywhere)
-      float separation_weight = 1.5;
+      float separation_weight = 2;
 
    UPROPERTY(EditAnywhere)
       float alignment_weight = 2;
@@ -51,7 +51,7 @@ public:
       float avoidObstacles_weight = 1.5;
 
    UPROPERTY(EditAnywhere)
-      float max_force = 1;
+      float max_force = .5;
 
 protected:
    // Called when the game starts or when spawned
