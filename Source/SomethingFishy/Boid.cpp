@@ -4,6 +4,7 @@
 #include "Flock.h"
 #include "BaitManager.h"
 #include "Bait.h"
+#include "PlayerPawn.h"
 
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -71,6 +72,19 @@ void ABoid::Tick(float DeltaTime)
    }
    moveDirection += this->Bounds() * this->bounds_weight;
    moveDirection += this->AvoidObstacles() * this->avoidObstacles_weight;
+   moveDirection += this->AvoidPlayer() * this->avoidPlayer_weight;
+   
+   // move towards center of map
+   {
+      FVector direction = myFlock->bounds / 2;
+      direction.Z = 0;
+      direction -= this->GetActorLocation();
+      direction /= direction.Size();
+      direction *= this->speed;
+      direction -= this->ProjectileMovementComponent->Velocity;
+      direction.Normalize(this->max_force);
+      moveDirection += direction * centralize_weight;
+   }
 
    // Temporary fix for occasional garbage moveDirection which propagates. fix later
    if (moveDirection.Size() < this->speed * 100 && moveDirection.Size() > -this->speed * 100)
@@ -79,7 +93,7 @@ void ABoid::Tick(float DeltaTime)
    }
    else
    {
-      this->ProjectileMovementComponent->Velocity += GetActorRotation().Vector() * this->speed * DeltaTime;
+      this->ProjectileMovementComponent->Velocity = GetActorRotation().Vector() * this->speed * DeltaTime;
    }
 }
 
@@ -197,7 +211,7 @@ FVector ABoid::AvoidObstacles()
    // Avoid beacon
    {
       float dist = FVector::Dist(loc, myFlock->beaconLocation);
-      if (dist > perceptionRange * 2) {
+      if (dist > perceptionRange) {
          FVector diff = loc - myFlock->beaconLocation;
          diff *= diff.Size();
          diff /= dist;
@@ -211,6 +225,38 @@ FVector ABoid::AvoidObstacles()
          force.Z -= this->ProjectileMovementComponent->Velocity.Z;
          force.Normalize(this->max_force);
       }
+   }
+
+   if (force.Size() < this->speed * 100 && force.Size() > -this->speed * 100)
+   {
+      return force;
+   }
+   else
+   {
+      return FVector(0, 0, 0);
+   }
+}
+
+// Steer away from player
+FVector ABoid::AvoidPlayer()
+{
+   FVector force = FVector(0, 0, 0);
+   FVector loc = this->GetActorLocation();
+
+   float dist = FVector::Dist(loc, myFlock->player->GetActorLocation());
+   if (dist > perceptionRange / 4) {
+      FVector diff = loc - myFlock->player->GetActorLocation();
+      diff *= diff.Size();
+      diff /= dist;
+      force += diff;
+   }
+
+   if (force.Size())
+   {
+      force /= force.Size();
+      force *= this->speed;
+      force.Z -= this->ProjectileMovementComponent->Velocity.Z;
+      force.Normalize(this->max_force);
    }
 
    if (force.Size() < this->speed * 100 && force.Size() > -this->speed * 100)

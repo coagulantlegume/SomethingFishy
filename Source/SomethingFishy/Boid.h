@@ -33,10 +33,10 @@ public:
       float perceptionRange = 300;
 
    UPROPERTY(EditAnywhere)
-      float speed = 700;
+      float speed = 400;
 
    UPROPERTY(EditAnywhere)
-      float separation_weight = 2;
+      float separation_weight = 2.5;
 
    UPROPERTY(EditAnywhere)
       float alignment_weight = 2;
@@ -54,7 +54,10 @@ public:
       float bounds_weight = 1.5;
 
    UPROPERTY(EditAnywhere)
-      float avoidPlayer_weight = 1.5;
+      float avoidPlayer_weight = 1;
+
+   UPROPERTY(EditAnywhere)
+      float centralize_weight = 1;
 
    UPROPERTY(EditAnywhere)
       float max_force = .5;
@@ -85,6 +88,9 @@ private:
 
    // Steer away from obstacles
    FVector AvoidObstacles();
+
+   // Steer away from player
+   FVector AvoidPlayer();
 
    // Steer away from bounds
    FVector Bounds();

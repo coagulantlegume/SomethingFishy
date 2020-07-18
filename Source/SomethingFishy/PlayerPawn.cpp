@@ -5,11 +5,11 @@
 #include "Boid.h"
 #include "ShopKeep.h"
 #include "BaitManager.h"
+#include "MyPawnMovementComponent.h"
 
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "MyPawnMovementComponent.h"
 #include "Components/Inputcomponent.h"
 #include "DrawDebugHelpers.h"
 
@@ -83,6 +83,8 @@ void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
    InputComponent->BindAxis("XMove", this, &APlayerPawn::Move_XAxis);
    InputComponent->BindAxis("YMove", this, &APlayerPawn::Move_YAxis);
 
+   InputComponent->BindAction("Jump", IE_Pressed, this, &APlayerPawn::Jump);
+
    // Set up "look" bindings.
    PlayerInputComponent->BindAxis("Turn", this, &APlayerPawn::CameraMoveX);
    PlayerInputComponent->BindAxis("LookUp", this, &APlayerPawn::CameraMoveY);
@@ -104,6 +106,16 @@ void APlayerPawn::Move_YAxis(float value)
    }
 }
 
+void APlayerPawn::Jump()
+{
+   if (!bjumping)
+   {
+      // if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Jump!")));
+      collisionMesh->AddImpulse(GetActorUpVector() * jumpImpulse);
+      bjumping = true;
+   }
+}
+
 void APlayerPawn::CameraMoveX(float value)
 {
    mouseInput.X = value;
@@ -120,11 +132,13 @@ void APlayerPawn::Interact()
 
    if (outHit.bBlockingHit && outHit.GetActor()->IsA(ABoid::StaticClass()))
    {
+      if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Caught Fish!")));
+
       ((ABoid*)outHit.GetActor())->Remove();
    }
    else if (outHit.bBlockingHit && outHit.GetActor()->IsA(AShopKeep::StaticClass()))
    {
-
+      if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Bought Bait!")));
    }
 }
 
@@ -148,14 +162,24 @@ FHitResult APlayerPawn::TraceCollision(float dist)
    FCollisionQueryParams collisionParams;
    bool isHit = GetWorld()->LineTraceSingleByChannel(outHit, start, end, ECC_Visibility, collisionParams);
 
-   if (isHit)
-   {
-      if (outHit.bBlockingHit)
-      {
-         if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("You are hitting: %s"), *outHit.GetActor()->GetName()));
-      }
-   }
+   // if (isHit)
+   // {
+   //    if (outHit.bBlockingHit)
+   //    {
+   //       if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString::Printf(TEXT("You are hitting: %s"), *outHit.GetActor()->GetName()));
+   //    }
+   // }
    return outHit;
 
    // DrawDebugLine(GetWorld(), start, end, FColor::Green, false, 1, 0, 1);
+}
+
+void APlayerPawn::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
+{
+   Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
+   // if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("I Hit: %s at %d"), *Other->GetName(), HitNormal.Z));
+   if (HitNormal.Z > 0)
+   {
+      bjumping = false;
+   }
 }
