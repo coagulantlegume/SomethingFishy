@@ -69,8 +69,4 @@ public:
    // UClass of baitmanager actor
    UPROPERTY(EditAnywhere)
       TSubclassOf<ABaitManager> BaitManagerActor;
-
-   // UClass of actors to spawn as bait
-   UPROPERTY(EditAnywhere)
-      TSubclassOf<ABait> BaitActorToSpawn;
 };

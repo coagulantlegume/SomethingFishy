@@ -36,7 +36,7 @@ public:
       float speed = 400;
 
    UPROPERTY(EditAnywhere)
-      float separation_weight = 2.5;
+      float separation_weight = 3;
 
    UPROPERTY(EditAnywhere)
       float alignment_weight = 2;
@@ -57,7 +57,7 @@ public:
       float avoidPlayer_weight = 1;
 
    UPROPERTY(EditAnywhere)
-      float centralize_weight = 1;
+      float centralize_weight = 1.5;
 
    UPROPERTY(EditAnywhere)
       float max_force = .5;

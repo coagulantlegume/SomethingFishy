@@ -5,6 +5,9 @@
 #include "Boid.h"
 #include "BaitManager.h"
 
+#include "Particles/ParticleSystemComponent.h"
+#include "Kismet/GameplayStatics.h"
+
 // Sets default values
 ABait::ABait()
 {
@@ -21,7 +24,7 @@ ABait::ABait()
    {
       this->VisualMesh->SetStaticMesh(VisualAsset.Object);
       // this->VisualMesh->SetRelativeLocation(spawnLocation);
-      this->VisualMesh->SetRelativeScale3D(FVector(this->value * 128 / 32 + 5, this->value * 128 / 32 + 5, this->value * 128 / 32 + 5));
+      this->VisualMesh->SetRelativeScale3D(FVector(this->value * 128/ 32 + 5, this->value * 128 / 32 + 5, this->value * 128 / 32 + 5));
    }
    
    // set starting value
@@ -40,6 +43,10 @@ void ABait::Tick(float DeltaTime)
 {
    Super::Tick(DeltaTime);
 
+   if (!scentParticle)
+   {
+      scentParticle = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), baitManager->ScentParticle, GetActorLocation(), FRotator::ZeroRotator, true);
+   }
 }
 
 void ABait::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
@@ -57,7 +64,9 @@ void ABait::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, cl
       else
       {
          if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Bait gone!")));
+         this->scentParticle->bSuppressSpawning = true;
          this->ConditionalBeginDestroy();
       }
+      biteParticle = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), baitManager->BiteParticle, HitLocation, HitNormal.Rotation(), true);
    }
 }

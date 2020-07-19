@@ -44,7 +44,7 @@ void ABaitManager::SpawnBait(const FVector& loc)
 {
    UWorld* world = GetWorld();
    ABait* newBait = (ABait*)world->UWorld::SpawnActor(ActorToSpawn, &loc, 0);
-   newBait->VisualMesh->SetMaterial(0, SpawnMaterial);
+   newBait->baitManager = this;
    this->worldBait.push_back(newBait);
 }
 

@@ -132,23 +132,32 @@ void APlayerPawn::Interact()
 
    if (outHit.bBlockingHit && outHit.GetActor()->IsA(ABoid::StaticClass()))
    {
+      ++numFish;
       if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Caught Fish!")));
 
       ((ABoid*)outHit.GetActor())->Remove();
    }
    else if (outHit.bBlockingHit && outHit.GetActor()->IsA(AShopKeep::StaticClass()))
    {
-      if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Bought Bait!")));
+      if (numFish >= 3)
+      {
+         ++numBait;
+         numFish -= 3;
+         if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Bought Bait!")));
+      }
    }
 }
 
 void APlayerPawn::PlaceBait()
 {
    FHitResult outHit = this->TraceCollision(reachDistance * 2);
-
-   if (outHit.bBlockingHit && *outHit.GetActor()->GetName() == FString("Floor"))
+   if (numBait > 0)
    {
-      baitManager->SpawnBait(outHit.ImpactPoint);
+      if (outHit.bBlockingHit && *outHit.GetActor()->GetName() == FString("Floor"))
+      {
+         baitManager->SpawnBait(outHit.ImpactPoint);
+         --numBait;
+      }
    }
 }
 

@@ -44,7 +44,11 @@ public:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<ABait> ActorToSpawn;
 
-	// Bait material
-	UPROPERTY(EditAnywhere)
-		UMaterialInterface* SpawnMaterial;
+	// Scent particle system
+	 UPROPERTY(EditAnywhere)
+	 	UParticleSystem* ScentParticle;
+
+	 // Bite particle system
+	 UPROPERTY(EditAnywhere)
+		 UParticleSystem* BiteParticle;
 };

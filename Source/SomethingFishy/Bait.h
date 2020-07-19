@@ -6,7 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "Bait.generated.h"
 
-class BaitManager;
+class ABaitManager;
+class UBoxComponent;
 
 UCLASS()
 class SOMETHINGFISHY_API ABait : public AActor
@@ -17,9 +18,15 @@ public:
 	// Sets default values for this actor's properties
 	ABait();
 
-	// mesh body to be replaced later
+	// mesh body
 	UPROPERTY(VisibleAnywhere)
 		UStaticMeshComponent* VisualMesh;
+
+	UPROPERTY(VisibleAnywhere)
+		UParticleSystemComponent* scentParticle;
+
+	UPROPERTY(VisibleAnywhere)
+		UParticleSystemComponent* biteParticle;
 
 	// Current value (bites left)
 	UPROPERTY(VisibleAnywhere)
@@ -29,7 +36,7 @@ public:
 	UPROPERTY(VisibleAnywhere)
 		FVector spawnLocation;
 
-	BaitManager* baitManager;
+	ABaitManager* baitManager;
 
 protected:
 	// Called when the game starts or when spawned

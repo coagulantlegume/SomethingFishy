@@ -286,23 +286,23 @@ FVector ABoid::Bounds()
    }
 
    // X bound check
-   if (loc.X - myFlock->boundsBuffer < this->perceptionRange / 3)
+   if (loc.X - myFlock->boundsBuffer < this->perceptionRange)
    {
       force.X += this->perceptionRange / 3 - loc.X;
    }
    else if (loc.X > this->myFlock->bounds.X + myFlock->boundsBuffer - this->perceptionRange / 3)
    {
-      force.X += (this->myFlock->bounds.X - this->perceptionRange / 3) - loc.X;
+      force.X += (this->myFlock->bounds.X - this->perceptionRange) - loc.X;
    }
 
    // Y bound check
-   if (loc.Y - myFlock->boundsBuffer < this->perceptionRange / 3)
+   if (loc.Y - myFlock->boundsBuffer < this->perceptionRange)
    {
       force.Y += this->perceptionRange / 3 - loc.Y;
    }
    else if (loc.Y > this->myFlock->bounds.Y + myFlock->boundsBuffer - this->perceptionRange / 3)
    {
-      force.Y += (this->myFlock->bounds.Y - this->perceptionRange / 3) - loc.Y;
+      force.Y += (this->myFlock->bounds.Y - this->perceptionRange) - loc.Y;
    }
 
    if (force.Size())

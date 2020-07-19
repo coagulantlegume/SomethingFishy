@@ -43,6 +43,9 @@ public:
    float jumpImpulse = 200000;
    float jumpHeight = 150;
 
+   int numFish = 0;
+   int numBait = 0;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
