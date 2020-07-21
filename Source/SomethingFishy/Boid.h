@@ -48,13 +48,13 @@ public:
       float target_weight = 3;
 
    UPROPERTY(EditAnywhere)
-      float avoidObstacles_weight = 0;
+      float avoidObstacles_weight = 1.5;
 
    UPROPERTY(EditAnywhere)
       float bounds_weight = 1.5;
 
    UPROPERTY(EditAnywhere)
-      float avoidPlayer_weight = 2;
+      float avoidPlayer_weight = 1.5;
 
    UPROPERTY(EditAnywhere)
       float centralize_weight = 1;

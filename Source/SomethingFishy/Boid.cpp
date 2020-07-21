@@ -202,7 +202,7 @@ FVector ABoid::AvoidObstacles()
    // Avoid beacon
    {
       float dist = FVector::Dist(loc, myFlock->beaconLocation);
-      if (dist > perceptionRange) {
+      if (dist < perceptionRange) {
          FVector diff = loc - myFlock->beaconLocation;
          diff *= diff.Size();
          diff /= dist;
@@ -235,7 +235,7 @@ FVector ABoid::AvoidPlayer()
    FVector loc = this->GetActorLocation();
 
    float dist = FVector::Dist(loc, myFlock->player->GetActorLocation());
-   if (dist > perceptionRange / 4) {
+   if (dist < perceptionRange / 4) {
       FVector diff = loc - myFlock->player->GetActorLocation();
       diff *= diff.Size();
       diff /= dist;
@@ -281,7 +281,7 @@ FVector ABoid::Bounds()
    // Check radial distance from center, circular bounds
    if (FVector2D::Distance((FVector2D)loc, (FVector2D)this->myFlock->bounds / 2) > this->myFlock->bounds.X - this->perceptionRange / 3)
    {
-      force += this->myFlock->bounds / 2 - loc;
+      force += loc - this->myFlock->bounds / 2;
       // FVector2D newForce = (FVector2D)this->myFlock->bounds / 2 - (FVector2D)loc;
       // force.X += newForce.X;
       // force.Y += newForce.Y;
