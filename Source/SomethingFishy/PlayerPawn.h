@@ -12,6 +12,7 @@ class UCapsuleComponent;
 class UMyPawnMovementComponent;
 class AArms;
 class ABaitManager;
+class APrimary_HUD;
 
 UCLASS()
 class SOMETHINGFISHY_API APlayerPawn : public APawn
@@ -37,6 +38,8 @@ public:
 
    UPROPERTY(EditAnywhere)
       ABaitManager* baitManager;
+
+   APrimary_HUD* primaryHUD;
 
    float maxSpeed = 7;
 

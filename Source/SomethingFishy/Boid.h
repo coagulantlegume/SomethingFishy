@@ -54,10 +54,10 @@ public:
       float bounds_weight = 1.5;
 
    UPROPERTY(EditAnywhere)
-      float avoidPlayer_weight = 1;
+      float avoidPlayer_weight = 2;
 
    UPROPERTY(EditAnywhere)
-      float centralize_weight = 1.5;
+      float centralize_weight = 1;
 
    UPROPERTY(EditAnywhere)
       float max_force = .5;
@@ -72,6 +72,9 @@ public:
 
    // Caught, so remove from world
    void Remove();
+
+   // set rotation and position to enter/re-enter main play area
+   void Enter();
 
 private:
    // Separation: Steer to avoid crowding local flockmates
@@ -94,4 +97,7 @@ private:
 
    // Steer away from bounds
    FVector Bounds();
+
+   // move towards center of map
+   FVector Centralize();
 };

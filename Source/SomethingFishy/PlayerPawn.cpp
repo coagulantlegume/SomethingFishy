@@ -12,6 +12,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/Inputcomponent.h"
 #include "DrawDebugHelpers.h"
+#include "UI/Primary_HUD.h"
 
 // Sets default values
 APlayerPawn::APlayerPawn()
@@ -54,6 +55,7 @@ void APlayerPawn::BeginPlay()
 {
 	Super::BeginPlay();
 	
+   primaryHUD = Cast<APrimary_HUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
 }
 
 // Called every frame
@@ -133,16 +135,28 @@ void APlayerPawn::Interact()
    if (outHit.bBlockingHit && outHit.GetActor()->IsA(ABoid::StaticClass()))
    {
       ++numFish;
+      if (primaryHUD)
+      {
+         primaryHUD->FishValueMore(numFish);
+      }
       if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Caught Fish!")));
 
-      ((ABoid*)outHit.GetActor())->Remove();
+      ((ABoid*)outHit.GetActor())->Enter();
    }
    else if (outHit.bBlockingHit && outHit.GetActor()->IsA(AShopKeep::StaticClass()))
    {
       if (numFish >= 3)
       {
          ++numBait;
+         if (primaryHUD)
+         {
+            primaryHUD->BaitValueMore(numBait);
+         }
          numFish -= 3;
+         if (primaryHUD)
+         {
+            primaryHUD->FishValueLess(numFish);
+         }
          if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Bought Bait!")));
       }
    }
@@ -157,6 +171,10 @@ void APlayerPawn::PlaceBait()
       {
          baitManager->SpawnBait(outHit.ImpactPoint);
          --numBait;
+         if (primaryHUD)
+         {
+            primaryHUD->BaitValueLess(numBait);
+         }
       }
    }
 }

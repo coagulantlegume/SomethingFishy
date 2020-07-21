@@ -9,6 +9,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values
 ABoid::ABoid()
@@ -74,17 +75,7 @@ void ABoid::Tick(float DeltaTime)
    moveDirection += this->AvoidObstacles() * this->avoidObstacles_weight;
    moveDirection += this->AvoidPlayer() * this->avoidPlayer_weight;
    
-   // move towards center of map
-   {
-      FVector direction = myFlock->bounds / 2;
-      direction.Z = 0;
-      direction -= this->GetActorLocation();
-      direction /= direction.Size();
-      direction *= this->speed;
-      direction -= this->ProjectileMovementComponent->Velocity;
-      direction.Normalize(this->max_force);
-      moveDirection += direction * centralize_weight;
-   }
+   moveDirection += this->Centralize() * this->centralize_weight;
 
    // Temporary fix for occasional garbage moveDirection which propagates. fix later
    if (moveDirection.Size() < this->speed * 100 && moveDirection.Size() > -this->speed * 100)
@@ -258,6 +249,8 @@ FVector ABoid::AvoidPlayer()
       force.Z -= this->ProjectileMovementComponent->Velocity.Z;
       force.Normalize(this->max_force);
    }
+   
+   // DrawDebugLine(GetWorld(), loc, loc + force * 4, FColor::Green, false, 1, 0, 1);
 
    if (force.Size() < this->speed * 100 && force.Size() > -this->speed * 100)
    {
@@ -276,33 +269,22 @@ FVector ABoid::Bounds()
    FVector loc = this->GetActorLocation();
 
    // Z bound check
-   if (loc.Z - 200 < this->perceptionRange / 2)
+   if (loc.Z < this->perceptionRange / 2)
    {
-      force.Z += this->perceptionRange / 2 - (loc.Z - 200);
+      force.Z += this->perceptionRange / 2 - (loc.Z);
    }
    else if (loc.Z > this->myFlock->bounds.Z - this->perceptionRange / 3)
    {
       force.Z += (this->myFlock->bounds.Z - this->perceptionRange / 3) - loc.Z;
    }
 
-   // X bound check
-   if (loc.X - myFlock->boundsBuffer < this->perceptionRange)
+   // Check radial distance from center, circular bounds
+   if (FVector2D::Distance((FVector2D)loc, (FVector2D)this->myFlock->bounds / 2) > this->myFlock->bounds.X - this->perceptionRange / 3)
    {
-      force.X += this->perceptionRange / 3 - loc.X;
-   }
-   else if (loc.X > this->myFlock->bounds.X + myFlock->boundsBuffer - this->perceptionRange / 3)
-   {
-      force.X += (this->myFlock->bounds.X - this->perceptionRange) - loc.X;
-   }
-
-   // Y bound check
-   if (loc.Y - myFlock->boundsBuffer < this->perceptionRange)
-   {
-      force.Y += this->perceptionRange / 3 - loc.Y;
-   }
-   else if (loc.Y > this->myFlock->bounds.Y + myFlock->boundsBuffer - this->perceptionRange / 3)
-   {
-      force.Y += (this->myFlock->bounds.Y - this->perceptionRange) - loc.Y;
+      force += this->myFlock->bounds / 2 - loc;
+      // FVector2D newForce = (FVector2D)this->myFlock->bounds / 2 - (FVector2D)loc;
+      // force.X += newForce.X;
+      // force.Y += newForce.Y;
    }
 
    if (force.Size())
@@ -311,6 +293,51 @@ FVector ABoid::Bounds()
       force *= this->speed;
       force.Z -= this->ProjectileMovementComponent->Velocity.Z;
       force.Normalize(this->max_force);
+      // DrawDebugLine(GetWorld(), loc, loc + force * 40, FColor::Green, false, .1, 0, 1);
+   }
+
+   if (force.Size() < this->speed * 100 && force.Size() > -this->speed * 100)
+   {
+      return force;
+   }
+   else
+   {
+      return FVector(0, 0, 0);
+   }
+}
+
+// move towards center of map
+FVector ABoid::Centralize()
+{
+   FVector loc = this->GetActorLocation();
+   FVector force = FVector(0, 0, 0);
+   bool oob = false;
+   // X bound check
+   if ((loc.X < this->perceptionRange * 2) || (loc.X > this->myFlock->bounds.X - this->perceptionRange * 2))
+   {
+      oob = true;
+   }
+
+   // Y bound check
+   if ((loc.Y < this->perceptionRange * 2) || (loc.Y > this->myFlock->bounds.Y- this->perceptionRange * 2))
+   {
+      oob = true;
+   }
+
+   force = myFlock->bounds / 2;
+   force.Z = 0;
+   force -= loc;
+
+   force /= force.Size();
+   force *= this->speed;
+   force -= this->ProjectileMovementComponent->Velocity;
+   force.Normalize(this->max_force);
+   force += force * centralize_weight;
+   // DrawDebugLine(GetWorld(), loc, loc + force * 40, FColor::Green, false, .1, 0, 1);
+
+   if (!oob)
+   {
+      force /= 5;
    }
 
    if (force.Size() < this->speed * 100 && force.Size() > -this->speed * 100)
@@ -326,4 +353,13 @@ FVector ABoid::Bounds()
 void ABoid::Remove()
 {
    myFlock->Remove(this);
+}
+
+void ABoid::Enter()
+{
+   FVector loc(0, UKismetMathLibrary::RandomFloat() * this->myFlock->bounds.Y, 500);
+   FRotator rot = (loc - this->myFlock->bounds / 2).Rotation();
+
+   this->SetActorLocation(loc);
+   this->SetActorRotation(rot);
 }
