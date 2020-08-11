@@ -6,14 +6,6 @@
 #include "GameFramework/Pawn.h"
 #include "PlayerPawn.generated.h"
 
-class UCameraComponent;
-class USpringArmComponent;
-class UCapsuleComponent;
-class UMyPawnMovementComponent;
-class AArms;
-class ABaitManager;
-class APrimary_HUD;
-
 UCLASS()
 class SOMETHINGFISHY_API APlayerPawn : public APawn
 {
@@ -23,23 +15,23 @@ public:
 	// Sets default values for this pawn's properties
 	APlayerPawn();
 
-   UMyPawnMovementComponent* movementComponent;
-   virtual UPawnMovementComponent* GetMovementComponent() const override;
+   class UMyPawnMovementComponent* movementComponent;
+   virtual class UPawnMovementComponent* GetMovementComponent() const override;
 
 
    UPROPERTY(VisibleAnywhere)
-   UCapsuleComponent* collisionMesh;
+   class UCapsuleComponent* collisionMesh;
 
    UPROPERTY(EditAnywhere)
-   USpringArmComponent* springArm;
+   class USpringArmComponent* springArm;
 
    UPROPERTY(EditAnywhere)
-   UCameraComponent* camera;
+   class UCameraComponent* camera;
 
    UPROPERTY(EditAnywhere)
-      ABaitManager* baitManager;
+   class ABaitManager* baitManager;
 
-   APrimary_HUD* primaryHUD;
+   class APrimary_HUD* primaryHUD;
 
    float maxSpeed = 7;
 

@@ -10,6 +10,9 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 
+/****************************************
+   *  Basic Public Functions
+*****************************************/
 // Sets default values
 AFlock::AFlock()
 {
@@ -17,36 +20,14 @@ AFlock::AFlock()
    PrimaryActorTick.bCanEverTick = false;
 }
 
-// Called when the game starts or when spawned
-void AFlock::BeginPlay()
-{
-   Super::BeginPlay();
-
-   UWorld* world = GetWorld();
-   FVector location(0);
-   FRotator rotation(0);
-
-   // Generate all boids in flock randomly on playable area
-   for (int i = 0; i < this->flockSize; ++i)
-   {
-      // set random position within bounds
-      location.FVector::Set(UKismetMathLibrary::RandomFloat() * this->bounds.X / 2 + this->bounds.X / 2,
-         UKismetMathLibrary::RandomFloat() * this->bounds.Y,
-         500);
-      rotation = FRotator(UKismetMathLibrary::RandomFloat() * 180,
-         UKismetMathLibrary::RandomFloat() * 180, 0);
-      ABoid* newFlockmate = (ABoid*)world->UWorld::SpawnActor(ActorToSpawn, &location, &rotation);
-      newFlockmate->myFlock = this;
-      this->flockmates.push_back(newFlockmate);
-   }
-
-   // Calculate beacon location
-   FVector shopLoc = shopKeep->GetActorLocation();
-   beaconLocation = FVector(shopLoc.X, shopLoc.Y, shopLoc.Z + 500);
+// Return number of boids in flock
+int32 AFlock::GetFlockSize() 
+{ 
+   return this->flockSize; 
 }
 
 // Return visible flock mates
-void AFlock::GetVisibleFlockmates(ABoid* me, float perceptionRange, std::vector<ABoid*>& visibleBoids)
+void AFlock::GetVisibleFlockmates(ABoid* me, std::vector<ABoid*>& visibleBoids)
 {
    for (auto const& i : flockmates) {
       if (FVector::Dist(i->GetActorLocation(), me->GetActorLocation()) < perceptionRange &&
@@ -68,8 +49,30 @@ void AFlock::Remove(ABoid* toRemove)
    }
 }
 
-// Respawn boid at edge of world
-//void AFlock::Respawn(ABoid* toRespawn)
-//{
-//   toRespawn->SetActorLocation()
-//}
+// Called when the game starts or when spawned
+void AFlock::BeginPlay()
+{
+   Super::BeginPlay();
+
+   UWorld* world = GetWorld();
+   FVector location(0);
+   FRotator rotation(0);
+
+   // Generate all boids in flock randomly on playable area
+   for (int i = 0; i < this->flockSize; ++i)
+   {
+      // set random position within bounds
+      location.FVector::Set(UKismetMathLibrary::RandomFloat() * this->bounds.X / 2 + this->bounds.X / 2,
+         UKismetMathLibrary::RandomFloat() * this->bounds.Y,
+         500);
+      rotation = FRotator(UKismetMathLibrary::RandomFloat() * 180,
+         UKismetMathLibrary::RandomFloat() * 180, 0);
+      ABoid* newFlockmate = (ABoid*)world->UWorld::SpawnActor(ActorToSpawn, &location, &rotation);
+      newFlockmate->SetFlock(this);
+      this->flockmates.push_back(newFlockmate);
+   }
+
+   // Calculate beacon location
+   FVector shopLoc = shopKeep->GetActorLocation();
+   beaconLocation = FVector(shopLoc.X, shopLoc.Y, shopLoc.Z + 500);
+}

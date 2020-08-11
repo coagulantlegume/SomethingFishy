@@ -6,67 +6,107 @@
 #include "GameFramework/Actor.h"
 #include "Flock.generated.h"
 
-class ABoid;
-class ABaitManager;
-class ABait;
-class UMaterialInstance;
-class APlayerPawn;
-class AShopKeep;
-
 UCLASS()
 class SOMETHINGFISHY_API AFlock : public AActor
 {
    GENERATED_BODY()
 
 public:
-   // Sets default values for this actor's properties
+   /****************************************
+   *  Basic Public Functions
+   *****************************************/
+   /* Constructors */ 
    AFlock();
 
+   /* Getters */
+   // Return number of boids in flock
+   int32 GetFlockSize();
+
+   // Return visible flock mates
+   void GetVisibleFlockmates(class ABoid* me, std::vector<class ABoid*>& visibleBoids);
+
+   /* Manipulators */
+   // Remove a specific boid from world
+   void Remove(class ABoid* toRemove);
+
+
+   /****************************************
+   *  Actor reference pointers
+   *****************************************/
    UPROPERTY(EditAnywhere)
-      ABaitManager* baitManager;
+   class ABaitManager* baitManager;
 
    UPROPERTY(EditAnywhere)
-      APlayerPawn* player;
+   class APlayerPawn* player;
 
    UPROPERTY(EditAnywhere)
-      AShopKeep* shopKeep;
+   class AShopKeep* shopKeep;
 
    FVector beaconLocation;
+
+
+   /****************************************
+   *  Spawn class types
+   *****************************************/
+   // UClass of actors to spawn as flockmates
+   UPROPERTY(EditAnywhere)
+   TSubclassOf<class ABoid> ActorToSpawn;
+
+
+   /****************************************
+   *  Flock Parameters
+   *****************************************/
+   // Number of boids in flock
+   UPROPERTY(EditAnywhere)
+   int32 flockSize = 20;
+
+   // Bounding limits of flock movement
+   UPROPERTY(EditAnywhere)
+   FVector bounds = FVector(200, 200, 200);
+
+
+   /****************************************
+   *  Boid Parameters
+   *****************************************/
+   UPROPERTY(EditAnywhere) 
+   float perceptionRange = 300;
+
+   UPROPERTY(EditAnywhere)
+   float speed = 500;
+
+   UPROPERTY(EditAnywhere)
+   float max_force = .5;
+
+   /* Behavior weights */ 
+   UPROPERTY(EditAnywhere)
+   float separation_weight = 2;
+
+   UPROPERTY(EditAnywhere)
+   float alignment_weight = 1.5;
+
+   UPROPERTY(EditAnywhere)
+   float cohesion_weight = 1;
+
+   UPROPERTY(EditAnywhere)
+   float target_weight = 2;
+
+   UPROPERTY(EditAnywhere)
+   float avoidObstacles_weight = 2;
+
+   UPROPERTY(EditAnywhere)
+   float bounds_weight = 1;
+
+   UPROPERTY(EditAnywhere)
+   float avoidPlayer_weight = 6;
+
+   UPROPERTY(EditAnywhere)
+   float centralize_weight = 1;
 
 protected:
    // Called when the game starts or when spawned
    virtual void BeginPlay() override;
 
-public:
-   // Return number of boids in flock
-   int32 GetFlockSize() { return this->flockSize; }
-
-   // Return visible flock mates
-   void GetVisibleFlockmates(ABoid* me, float perceptionRange, std::vector<ABoid*>& visibleBoids);
-
-   // Remove a specific boid from world
-   void Remove(ABoid* toRemove);
-
+private:
    // Array of all boids in flock
-   std::list<ABoid*> flockmates;
-
-   // Number of boids in flock
-   UPROPERTY(EditAnywhere)
-      int32 flockSize = 20;
-
-   // Bounding limits of flock movement
-   UPROPERTY(EditAnywhere)
-      FVector bounds = FVector(200, 200, 200);
-
-   // Buffer for turning off senses outside of bounds before teleporting
-   UPROPERTY(EditAnywhere)
-      float boundsBuffer = 200;
-
-   // UClass of actors to spawn as flockmates
-   UPROPERTY(EditAnywhere)
-      TSubclassOf<ABoid> ActorToSpawn;
-
-   // UClass of baitmanager actor
-   UPROPERTY(EditAnywhere)
-      TSubclassOf<ABaitManager> BaitManagerActor;
+   std::list <class ABoid* > flockmates;
 };

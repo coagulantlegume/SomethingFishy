@@ -6,85 +6,59 @@
 #include "GameFramework/Actor.h"
 #include "Boid.generated.h"
 
-class AFlock;
-class UProjectileMovementComponent;
-
 UCLASS()
 class SOMETHINGFISHY_API ABoid : public AActor
 {
    GENERATED_BODY()
 
 public:
-   // Sets default values for this actor's properties
+   /****************************************
+   *  Basic Public Functions
+   *****************************************/
+   /* Constructor */
    ABoid();
 
-   // mesh body to be replaced later
-   UPROPERTY(VisibleAnywhere)
-      UStaticMeshComponent* VisualMesh;
-
-   // movement component for velocity
-   UPROPERTY(VisibleAnywhere)
-      UProjectileMovementComponent* ProjectileMovementComponent;
-
-   UPROPERTY(EditAnywhere)
-      AFlock* myFlock;
-
-   UPROPERTY(EditAnywhere)
-      float perceptionRange = 300;
-
-   UPROPERTY(EditAnywhere)
-      float speed = 400;
-
-   UPROPERTY(EditAnywhere)
-      float separation_weight = 3;
-
-   UPROPERTY(EditAnywhere)
-      float alignment_weight = 2;
-
-   UPROPERTY(EditAnywhere)
-      float cohesion_weight = 2.5;
-
-   UPROPERTY(EditAnywhere)
-      float target_weight = 3;
-
-   UPROPERTY(EditAnywhere)
-      float avoidObstacles_weight = 1.5;
-
-   UPROPERTY(EditAnywhere)
-      float bounds_weight = 1.5;
-
-   UPROPERTY(EditAnywhere)
-      float avoidPlayer_weight = 1.5;
-
-   UPROPERTY(EditAnywhere)
-      float centralize_weight = 1;
-
-   UPROPERTY(EditAnywhere)
-      float max_force = .5;
-
-protected:
-   // Called when the game starts or when spawned
-   virtual void BeginPlay() override;
-
-public:
-   // Called every frame
+   /* Tick */
    virtual void Tick(float DeltaTime) override;
 
-   // Caught, so remove from world
+   /* Manipulators */
+   // Set the flock that boid is a member of
+   void SetFlock(class AFlock* flock);
+
+   // remove from world
    void Remove();
 
    // set rotation and position to enter/re-enter main play area
    void Enter();
 
+protected:
+   // Called when the game starts or when spawned
+   virtual void BeginPlay() override;
+
 private:
+   /****************************************
+   *  Member Variables
+   *****************************************/
+   /* Component References */
+   UStaticMeshComponent* VisualMesh;
+
+   class UProjectileMovementComponent* ProjectileMovementComponent;
+
+   /* Parameters */
+   class AFlock* myFlock; // reference to flock that boid is a member of
+
+
+   /****************************************
+   *  Behavior Functions
+   *****************************************/
    // Separation: Steer to avoid crowding local flockmates
-   FVector Separation(const std::vector<ABoid*>& flockMates);
+   FVector Separation(const std::vector<class ABoid*>& flockMates);
 
    // Alignment: Steer towards the average heading of local flockmates
-   FVector Alignment(const std::vector<ABoid*>& flockMates);
+   FVector Alignment(const std::vector<class ABoid*>& flockMates);
 
    // Cohesion: Steer to move toward the average position of local flockmates
-   FVector Cohesion(const std::vector<ABoid*>& flockMates);
+   FVector Cohesion(const std::vector<class ABoid*>& flockMates);
 
    // Steer toward closest target, if in perception range
    FVector Target();

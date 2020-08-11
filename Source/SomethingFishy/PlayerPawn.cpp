@@ -21,7 +21,7 @@ APlayerPawn::APlayerPawn()
 	PrimaryActorTick.bCanEverTick = true;
 
    // Set this pawn to be controlled by the lowest-numbered player
-   AutoPossessPlayer = EAutoReceiveInput::Player0;
+   // AutoPossessPlayer = EAutoReceiveInput::Player0;
 
    // Create collision object and set as root
    collisionMesh = CreateDefaultSubobject<UCapsuleComponent>(TEXT("collisionMesh"));

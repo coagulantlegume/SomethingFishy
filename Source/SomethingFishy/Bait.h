@@ -6,46 +6,53 @@
 #include "GameFramework/Actor.h"
 #include "Bait.generated.h"
 
-class ABaitManager;
-class UBoxComponent;
-
 UCLASS()
 class SOMETHINGFISHY_API ABait : public AActor
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
+	/****************************************
+	*  Basic Public Functions
+	*****************************************/
+	/* Constructor */
 	ABait();
 
-	// mesh body
-	UPROPERTY(VisibleAnywhere)
-		UStaticMeshComponent* VisualMesh;
+	/* Tick */
+	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(VisibleAnywhere)
-		UParticleSystemComponent* scentParticle;
+	/* Getters */
+	int GetValue();
 
-	UPROPERTY(VisibleAnywhere)
-		UParticleSystemComponent* biteParticle;
+	/* Setters */
+	void SetManager(class ABaitManager* manager);
 
-	// Current value (bites left)
-	UPROPERTY(VisibleAnywhere)
-		float value = 16;
-
-	// spawn location
-	UPROPERTY(VisibleAnywhere)
-		FVector spawnLocation;
-
-	ABaitManager* baitManager;
+	/* Collision event handler */
+	virtual void NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit);
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+private:
+	/****************************************
+	*  Member Variables
+	*****************************************/
+	/* Component References */
+	UStaticMeshComponent* VisualMesh;
 
-	// Bite collision
-	virtual void NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit);
+	/* Particle References*/
+	UParticleSystemComponent* scentParticle;
+
+	UParticleSystemComponent* biteParticle;
+
+	/* Parameters */
+	// Current value (bites left)
+	float value = 16;
+
+	// spawn location
+	FVector spawnLocation;
+
+	// reference to world bait manager
+	class ABaitManager* baitManager;
 };

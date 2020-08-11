@@ -8,6 +8,9 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Kismet/GameplayStatics.h"
 
+/****************************************
+*  Member Variables
+*****************************************/
 // Sets default values
 ABait::ABait()
 {
@@ -31,13 +34,6 @@ ABait::ABait()
    value = 16;
 }
 
-// Called when the game starts or when spawned
-void ABait::BeginPlay()
-{
-   Super::BeginPlay();
-
-}
-
 // Called every frame
 void ABait::Tick(float DeltaTime)
 {
@@ -47,6 +43,16 @@ void ABait::Tick(float DeltaTime)
    {
       scentParticle = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), baitManager->ScentParticle, GetActorLocation(), FRotator::ZeroRotator, true);
    }
+}
+
+int ABait::GetValue()
+{
+   return value;
+}
+
+void ABait::SetManager(ABaitManager* manager)
+{
+   baitManager = manager;
 }
 
 void ABait::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
@@ -69,4 +75,11 @@ void ABait::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, cl
       }
       biteParticle = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), baitManager->BiteParticle, HitLocation, HitNormal.Rotation(), true);
    }
+}
+
+// Called when the game starts or when spawned
+void ABait::BeginPlay()
+{
+   Super::BeginPlay();
+
 }
