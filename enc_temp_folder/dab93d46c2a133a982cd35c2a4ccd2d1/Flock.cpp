@@ -23,6 +23,7 @@ AFlock::AFlock()
    // create cell grid component
    flockGrid = CreateDefaultSubobject<UCellGrid>(TEXT("CellGrid"));
    flockGrid->MakeDynamic();
+   flockGrid->setUnitSize(perceptionRange);
 }
 
 // Return number of boids in flock
@@ -34,13 +35,13 @@ int32 AFlock::GetFlockSize()
 // Return visible flock mates
 void AFlock::GetVisibleFlockmates(ABoid* me, std::vector<ABoid*>& visibleBoids)
 {
-   std::vector<AActor*> neighbors = flockGrid->GetNeighbors(me);
-   for (auto const& i : neighbors) {
-      if (FVector::Dist(i->GetActorLocation(), me->GetActorLocation()) < perceptionRange &&
-         me != i) {
-         visibleBoids.push_back(dynamic_cast<ABoid*>(i));
-      }
-   }
+   //for (auto const& i : flockmates) {
+   //   if (FVector::Dist(i->GetActorLocation(), me->GetActorLocation()) < perceptionRange &&
+   //      me != i) {
+   //      visibleBoids.push_back(i);
+   //   }
+   //}
+
 }
 
 // Remove a specific boid from world
@@ -63,8 +64,6 @@ void AFlock::BeginPlay()
    UWorld* world = GetWorld();
    FVector location(0);
    FRotator rotation(0);
-
-   flockGrid->setUnitSize(perceptionRange);
 
    // Generate all boids in flock randomly on playable area
    for (int i = 0; i < this->flockSize; ++i)

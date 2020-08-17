@@ -15,7 +15,7 @@ public:
    /****************************************
    *  Basic Public Functions
    *****************************************/
-   /* Constructors */ 
+   /* Constructors */
    AFlock();
 
    /* Getters */
@@ -34,13 +34,13 @@ public:
    *  Actor reference pointers
    *****************************************/
    UPROPERTY(EditAnywhere)
-   class ABaitManager* baitManager;
+      class ABaitManager* baitManager;
 
    UPROPERTY(EditAnywhere)
-   class APlayerPawn* player;
+      class APlayerPawn* player;
 
    UPROPERTY(EditAnywhere)
-   class AShopKeep* shopKeep;
+      class AShopKeep* shopKeep;
 
    FVector beaconLocation;
 
@@ -50,7 +50,7 @@ public:
    *****************************************/
    // UClass of actors to spawn as flockmates
    UPROPERTY(EditAnywhere)
-   TSubclassOf<class ABoid> ActorToSpawn;
+      TSubclassOf<class ABoid> ActorToSpawn;
 
 
    /****************************************
@@ -58,49 +58,49 @@ public:
    *****************************************/
    // Number of boids in flock
    UPROPERTY(EditAnywhere)
-   int32 flockSize = 20;
+      int32 flockSize = 20;
 
    // Bounding limits of flock movement
    UPROPERTY(EditAnywhere)
-   FVector bounds = FVector(200, 200, 200);
+      FVector bounds = FVector(200, 200, 200);
 
 
    /****************************************
    *  Boid Parameters
    *****************************************/
-   UPROPERTY(EditAnywhere) 
-   float perceptionRange = 300;
+   UPROPERTY(EditAnywhere)
+      float perceptionRange = 300;
 
    UPROPERTY(EditAnywhere)
-   float speed = 500;
+      float speed = 500;
 
    UPROPERTY(EditAnywhere)
-   float max_force = .5;
+      float max_force = .5;
 
-   /* Behavior weights */ 
+   /* Behavior weights */
    UPROPERTY(EditAnywhere)
-   float separation_weight = 2;
-
-   UPROPERTY(EditAnywhere)
-   float alignment_weight = 1.5;
+      float separation_weight = 2;
 
    UPROPERTY(EditAnywhere)
-   float cohesion_weight = 1;
+      float alignment_weight = 1.5;
 
    UPROPERTY(EditAnywhere)
-   float target_weight = 2;
+      float cohesion_weight = 1;
 
    UPROPERTY(EditAnywhere)
-   float avoidObstacles_weight = 2;
+      float target_weight = 2;
 
    UPROPERTY(EditAnywhere)
-   float bounds_weight = 1;
+      float avoidObstacles_weight = 2;
 
    UPROPERTY(EditAnywhere)
-   float avoidPlayer_weight = 6;
+      float bounds_weight = 1;
 
    UPROPERTY(EditAnywhere)
-   float centralize_weight = 1;
+      float avoidPlayer_weight = 6;
+
+   UPROPERTY(EditAnywhere)
+      float centralize_weight = 1;
 
 protected:
    // Called when the game starts or when spawned
@@ -109,4 +109,5 @@ protected:
 private:
    // Array of all boids in flock
    std::list <class ABoid* > flockmates;
+   class UCellGrid* flockGrid;
 };
