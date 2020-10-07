@@ -1,5 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+/*
+   TODO: Change force functions to return desired direction, then modify application to use max force.
+*/
+
 #include "Boid.h"
 #include "Flock.h"
 #include "BaitManager.h"
@@ -19,6 +23,7 @@ ABoid::ABoid()
 {
    // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
    PrimaryActorTick.bCanEverTick = true;
+   // PrimaryActorTick.TickInterval = 0.33f;
 
    // Set up visual mesh
    VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
@@ -53,39 +58,104 @@ void ABoid::Tick(float DeltaTime)
    std::vector<ABoid*> curr_flockmates;
    myFlock->AFlock::GetVisibleFlockmates(this, curr_flockmates);
 
-   // Make vector for current direction
-   FVector moveDirection = GetActorRotation().Vector();
+   // Make vector for new force applied
+   FVector new_force = GetActorRotation().Vector();
+   float totalWeight = 0; // sum weights of all applied forces
 
-   // Calculate logic forces
+   // Calculate flocking logic forces
    if (curr_flockmates.size())
    {
-      moveDirection += Separation(curr_flockmates) * myFlock->separation_weight;
-      moveDirection += Alignment(curr_flockmates) * myFlock->alignment_weight;
-      moveDirection += Cohesion(curr_flockmates) * myFlock->cohesion_weight;
-   }
-   if (myFlock->baitManager && myFlock->baitManager->NotEmpty())
-   {
-      moveDirection += Target() * myFlock->target_weight;
-   }
-   moveDirection += Bounds() * myFlock->bounds_weight;
-   moveDirection += AvoidObstacles() * myFlock->avoidObstacles_weight;
-   moveDirection += AvoidPlayer() * myFlock->avoidPlayer_weight;
+      new_force += Separation(curr_flockmates) * myFlock->separation_weight;
+      new_force += Alignment(curr_flockmates) * myFlock->alignment_weight;
+      new_force += Cohesion(curr_flockmates) * myFlock->cohesion_weight;
 
-   moveDirection += Centralize() * myFlock->centralize_weight;
+      totalWeight += myFlock->separation_weight + myFlock->alignment_weight + myFlock->cohesion_weight;
+   }
 
-   // Temporary fix for occasional garbage moveDirection which propagates. fix later
-   if (moveDirection.Size() < myFlock->speed * 100 && moveDirection.Size() > -myFlock->speed * 100)
+   FVector temp = FVector::ZeroVector; // for temp desired vector storage to see if taking effect
+
+   // Calculate targeting logic
+   if (myFlock->target_weight && myFlock->baitManager && myFlock->baitManager->NotEmpty())
    {
-      ProjectileMovementComponent->Velocity += moveDirection * myFlock->speed * DeltaTime;
+      temp = Target() * myFlock->target_weight;
+      if (temp.Size())
+      {
+         new_force += temp;
+         totalWeight += myFlock->target_weight;
+      }
    }
-   else
+
+   // Calculate bounds logic
+   if (myFlock->bounds_weight)
    {
-      ProjectileMovementComponent->Velocity = GetActorRotation().Vector() * myFlock->speed * DeltaTime;
+      temp = Bounds() * myFlock->bounds_weight;
+      if (temp.Size())
+      {
+         new_force += temp;
+         totalWeight += myFlock->bounds_weight;
+      }
    }
-   if (!ProjectileMovementComponent->Velocity.Size()) // bugged, reset
+
+   // Calculate obstacle avoidance logic
+   if (myFlock->avoidObstacles_weight)
    {
-      this->Enter();
+      temp = AvoidObstacles() * myFlock->avoidObstacles_weight;
+      if (temp.Size())
+      {
+         new_force += temp;
+         totalWeight += myFlock->avoidObstacles_weight;
+      }
    }
+   
+   // Calculate player avoidance logic
+   if (myFlock->avoidPlayer_weight)
+   {
+      temp = AvoidPlayer() * myFlock->avoidPlayer_weight;
+      if (temp.Size())
+      {
+         new_force += temp;
+         totalWeight += myFlock->avoidPlayer_weight;
+      }
+   }
+
+   // Calculate centralizing logic
+   if (myFlock->centralize_weight)
+   {
+      temp = Centralize() * myFlock->centralize_weight;
+      if (temp.Size())
+      {
+         new_force += temp;
+         totalWeight += myFlock->centralize_weight;
+      }
+   }
+
+   // Calculate full desired velocity/direction with 0 < magnitude < speed
+   if (totalWeight) // any logic influence to change direction
+   {
+      new_force /= totalWeight;
+      //if (new_force.Size() > myFlock->max_speed)
+      {
+         new_force = new_force / new_force.Size() * myFlock->max_speed;
+      }
+   }
+   else // no change, continue current heading up to speed
+   {
+      //if (new_force.Size() > myFlock->idle_speed)
+      {
+         new_force = new_force / new_force.Size() * myFlock->idle_speed;
+      }
+   }
+
+   // Calculate new force
+   new_force -= ProjectileMovementComponent->Velocity; // Optimal force
+   if (new_force.Size() > (myFlock->max_force * DeltaTime)) // Cap force
+   {
+      new_force = new_force / new_force.Size() * (myFlock->max_force * DeltaTime);
+   }
+
+   
+   // Apply movement
+   ProjectileMovementComponent->Velocity += new_force;
 }
 
 // Set the flock that boid is a member of
@@ -116,7 +186,7 @@ void ABoid::BeginPlay()
    Super::BeginPlay();
    if (myFlock) 
    {
-      ProjectileMovementComponent->MaxSpeed = myFlock->speed;
+      ProjectileMovementComponent->MaxSpeed = myFlock->max_speed;
    }
    else
    {
@@ -131,11 +201,16 @@ void ABoid::BeginPlay()
 // Separation: Steer to avoid crowding local flockmates
 FVector ABoid::Separation(const std::vector<ABoid*>& flockmates)
 {
-   FVector force(0, 0, 0);
+   FVector force = FVector::ZeroVector;
    FVector loc = GetActorLocation();
+   float shortestDist = myFlock->perceptionRange;
    for (unsigned int i = 0; i < flockmates.size(); ++i)
    {
       float dist = FVector::Dist(loc, flockmates[i]->GetActorLocation());
+      if (dist < shortestDist)
+      {
+         shortestDist = dist;
+      }
       FVector diff = loc - flockmates[i]->GetActorLocation();
       diff *= diff.Size();
       diff /= dist;
@@ -143,206 +218,210 @@ FVector ABoid::Separation(const std::vector<ABoid*>& flockmates)
    }
 
    force /= flockmates.size();
-   force /= force.Size();
-   force *= myFlock->speed;
-   force -= ProjectileMovementComponent->Velocity;
-   force.Normalize(myFlock->max_force);
+   float urgency = (myFlock->perceptionRange - shortestDist) / myFlock->perceptionRange;
+   force = force / force.Size() * urgency;
 
-   if (force.Size() < myFlock->speed * 100 && force.Size() > -myFlock->speed * 100)
+   if (force.Size() < 1.001 && force.Size() > -1.001)
    {
+      //if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("%d"), shortestDist));
       return force;
    }
    else
    {
-      return FVector(0, 0, 0);
+      return FVector::ZeroVector;
    }
 }
 
 // Alignment: Steer towards the average heading of local flockmates
 FVector ABoid::Alignment(const std::vector<ABoid*>& flockmates)
 {
-   FVector force(0, 0, 0);
+   FVector force = FVector::ZeroVector;
+   FVector loc = GetActorLocation();
+   float shortestDist = myFlock->perceptionRange;
    for (unsigned int i = 0; i < flockmates.size(); ++i)
    {
+      float dist = FVector::Dist(loc, flockmates[i]->GetActorLocation());
+      if (dist < shortestDist)
+      {
+         shortestDist = dist;
+      }
       force += flockmates[i]->GetVelocity();
    }
 
    force /= flockmates.size();
-   force /= force.Size();
-   force *= myFlock->speed;
-   force -= ProjectileMovementComponent->Velocity;
-   force.Normalize(myFlock->max_force);
+   float urgency = (myFlock->perceptionRange - shortestDist) / myFlock->perceptionRange;
+   force = force / force.Size() * urgency;
 
-   if (force.Size() < myFlock->speed * 100 && force.Size() > -myFlock->speed * 100)
+   if (force.Size() < 1.001 && force.Size() > -1.001)
    {
       return force;
    }
    else
    {
-      return FVector(0, 0, 0);
+      return FVector::ZeroVector;
    }
 }
 
 // Cohesion: Steer to move toward the average position of local flockmates
 FVector ABoid::Cohesion(const std::vector<ABoid*>& flockmates)
 {
-   FVector position = FVector(0, 0, 0);
+   FVector position = FVector::ZeroVector;
    for (unsigned int i = 0; i < flockmates.size(); ++i)
    {
       position += flockmates[i]->GetActorLocation();
    }
    position /= flockmates.size();
    FVector force = position - GetActorLocation();
-   force /= force.Size();
-   force *= myFlock->speed;
-   force -= ProjectileMovementComponent->Velocity;
-   force.Normalize(myFlock->max_force);
+   float dist = FVector::Dist(position, GetActorLocation());
+   float urgency = (myFlock->perceptionRange - dist) / myFlock->perceptionRange;
+   force = force / force.Size() * urgency;
 
-   if (force.Size() < myFlock->speed * 100 && force.Size() > -myFlock->speed * 100)
+   if (force.Size() < 1.001 && force.Size() > -1.001)
    {
       return force;
    }
    else
    {
-      return FVector(0, 0, 0);
+      return FVector::ZeroVector;
    }
 }
 
 // Steer toward closest target, if in perception range
 FVector ABoid::Target()
 {
-   FVector force = FVector(0, 0, 0);
+   FVector force = FVector::ZeroVector;
    ABait* nearbyBait = myFlock->baitManager->GetNearestBait(GetActorLocation());
    if (!nearbyBait)
    {
       return force;
    }
-   force = nearbyBait->GetActorLocation() - GetActorLocation();
-   force /= force.Size();
-   force *= myFlock->speed;
-   force -= ProjectileMovementComponent->Velocity;
-   force.Normalize(myFlock->max_force);
 
-   if (force.Size() < myFlock->speed * 100 && force.Size() > -myFlock->speed * 100)
+   float dist = FVector::Dist(nearbyBait->GetActorLocation(), GetActorLocation());
+   if (dist < myFlock->perceptionRange * 5)
+   {
+      force = nearbyBait->GetActorLocation() - GetActorLocation();
+      if (force.Size() > myFlock->perceptionRange * 5)
+      {
+         force = force / force.Size() * myFlock->perceptionRange * 5;
+      }
+
+      // Shrink to 0-1 scale
+      force /= myFlock->perceptionRange * 5;
+   }
+   
+
+   if (force.Size() < 1.001 && force.Size() > -1.001)
    {
       return force;
    }
    else
    {
-      return FVector(0, 0, 0);
+      return FVector::ZeroVector;
    }
 }
 
 // Obstacle/bounds check
 FVector ABoid::AvoidObstacles()
 {
-   FVector force = FVector(0, 0, 0);
+   FVector force = FVector::ZeroVector;
    FVector loc = GetActorLocation();
 
    // Avoid beacon
-   {
-      float dist = FVector::Dist(loc, myFlock->beaconLocation);
-      if (dist < myFlock->perceptionRange) {
-         FVector diff = loc - myFlock->beaconLocation;
-         diff *= diff.Size();
-         diff /= dist;
-         force += diff;
-      }
+   float dist = FVector::Dist(loc, myFlock->beaconLocation);
+   if (dist < myFlock->perceptionRange * 3) {
+      force = loc - myFlock->beaconLocation;
+      force /= myFlock->max_speed;
 
-      if (force.Size())
+      if (force.Size() > 1)
       {
          force /= force.Size();
-         force *= myFlock->speed;
-         force.Z -= ProjectileMovementComponent->Velocity.Z;
-         force.Normalize(myFlock->max_force);
+         force *= myFlock->max_speed;
       }
    }
 
-   if (force.Size() < myFlock->speed * 100 && force.Size() > -myFlock->speed * 100)
+   if (force.Size() < 1.001 && force.Size() > -1.001)
    {
       return force;
    }
    else
    {
-      return FVector(0, 0, 0);
+      return FVector::ZeroVector;
    }
 }
 
 // Steer away from player
 FVector ABoid::AvoidPlayer()
 {
-   FVector force = FVector(0, 0, 0);
+   FVector force = FVector::ZeroVector;
    FVector loc = GetActorLocation();
 
    float dist = FVector::Dist(loc, myFlock->player->GetActorLocation());
-   if (dist < myFlock->perceptionRange) {
-      FVector diff = loc - myFlock->player->GetActorLocation();
-      diff *= diff.Size();
-      diff /= dist;
-      force += diff;
+   if (dist < myFlock->perceptionRange * 3) {
+      // if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("%s avoiding player"), this));
+      force = loc - myFlock->player->GetActorLocation();
+      force /= myFlock->max_speed;
+
+      if (force.Size() > 1)
+      {
+         force /= force.Size();
+         force *= myFlock->max_speed;
+      }
    }
 
-   if (force.Size())
-   {
-      //if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Avoiding Player")));
-      force /= force.Size();
-      force *= myFlock->speed;
-      force.Z -= ProjectileMovementComponent->Velocity.Z;
-      force.Normalize(myFlock->max_force);
-      // DrawDebugLine(GetWorld(), loc, loc + force * 40, FColor::Green, false, 1, 0, 1);
-   }
-
-   if (force.Size() < myFlock->speed * 100 && force.Size() > -myFlock->speed * 100)
+   if (force.Size() < 1.001 && force.Size() > -1.001)
    {
       return force;
    }
    else
    {
-      return FVector(0, 0, 0);
+      return FVector::ZeroVector;
    }
 }
 
 // Steer away from bounds
 FVector ABoid::Bounds()
 {
-   FVector force = FVector(0, 0, 0);
+   FVector force = FVector::ZeroVector;
    FVector loc = GetActorLocation();
 
    // Z bound check
    if (loc.Z < myFlock->perceptionRange / 2)
    {
-      force.Z += myFlock->perceptionRange / 2 - (loc.Z);
+      force.Z += myFlock->perceptionRange / 2 - loc.Z;
    }
-   else if (loc.Z > myFlock->bounds.Z - myFlock->perceptionRange / 3)
+   else if (loc.Z > myFlock->bounds.Z - myFlock->perceptionRange)
    {
-      force.Z += (myFlock->bounds.Z - myFlock->perceptionRange / 3) - loc.Z;
+      force.Z += myFlock->bounds.Z - myFlock->perceptionRange - loc.Z;
+   }
+   else // not cloes to floor or ceiling, level out to avoid constant bouncing
+   {
+      force.Z = -ProjectileMovementComponent->Velocity.Z / 10;
    }
 
    // Check radial distance from center, circular bounds
-   if (FVector2D::Distance((FVector2D)loc, (FVector2D)myFlock->bounds / 2) > myFlock->bounds.X - myFlock->perceptionRange / 3)
+   if (FVector2D::Distance((FVector2D)loc, (FVector2D)myFlock->bounds / 2) > myFlock->bounds.X / 2 - myFlock->perceptionRange)
    {
-      force += loc - myFlock->bounds / 2;
-      // FVector2D newForce = (FVector2D)myFlock->bounds / 2 - (FVector2D)loc;
-      // force.X += newForce.X;
-      // force.Y += newForce.Y;
+      force += myFlock->bounds / 2 - loc;
+      
+      // Scale based on urgency
+      force /= force.Size();
+      force *= FVector2D::Distance((FVector2D)loc, (FVector2D)myFlock->bounds / 2) - (myFlock->bounds.X / 2 - myFlock->perceptionRange);
    }
 
-   if (force.Size())
+   // Shrink and cap to 0-1 magnitude based on urgency
+   force /= myFlock->max_speed;
+   if (force.Size() > 1) // if desired movement exceeding max speed
    {
       force /= force.Size();
-      force *= myFlock->speed;
-      force.Z -= ProjectileMovementComponent->Velocity.Z;
-      force.Normalize(myFlock->max_force);
-      // DrawDebugLine(GetWorld(), loc, loc + force * 40, FColor::Green, false, .1, 0, 1);
    }
 
-   if (force.Size() < myFlock->speed * 100 && force.Size() > -myFlock->speed * 100)
+   if (force.Size() < 1.001 && force.Size() > -1.001)
    {
       return force;
    }
    else
    {
-      return FVector(0, 0, 0);
+      return FVector::ZeroVector;
    }
 }
 
@@ -350,42 +429,36 @@ FVector ABoid::Bounds()
 FVector ABoid::Centralize()
 {
    FVector loc = GetActorLocation();
-   FVector force = FVector(0, 0, 0);
-   bool oob = false;
-   // X bound check
-   if ((loc.X < myFlock->perceptionRange * 2) || (loc.X > myFlock->bounds.X - myFlock->perceptionRange * 2))
-   {
-      oob = true;
-   }
-
-   // Y bound check
-   if ((loc.Y < myFlock->perceptionRange * 2) || (loc.Y > myFlock->bounds.Y- myFlock->perceptionRange * 2))
-   {
-      oob = true;
-   }
+   FVector force = FVector::ZeroVector;
 
    force = myFlock->bounds / 2;
    force.Z = 0;
    force -= loc;
 
-   force /= force.Size();
-   force *= myFlock->speed;
-   force -= ProjectileMovementComponent->Velocity;
-   force.Normalize(myFlock->max_force);
-   force += force * myFlock->centralize_weight;
-   // DrawDebugLine(GetWorld(), loc, loc + force * 40, FColor::Green, false, .1, 0, 1);
-
-   if (!oob)
+   if (force.Size() < myFlock->bounds.X / 4)
    {
-      force /= 5;
+      return FVector::ZeroVector;
    }
 
-   if (force.Size() < myFlock->speed * 100 && force.Size() > -myFlock->speed * 100)
+   // Scale based on urgency
+   force /= force.Size();
+   force *= FVector2D::Distance((FVector2D)loc, (FVector2D)myFlock->bounds / 2) - myFlock->bounds.X / 4;
+
+   // Shrink and cap to 0-1 magnitude based on urgency
+   force /= myFlock->max_speed;
+   if (force.Size() > 1) // if desired movement exceeding max speed
+   {
+      force /= force.Size();
+   }
+   
+   // DrawDebugLine(GetWorld(), loc, loc + force * 40, FColor::Green, false, .1, 0, 1);
+
+   if (force.Size() < 1.001 && force.Size() > -1.001)
    {
       return force;
    }
    else
    {
-      return FVector(0, 0, 0);
+      return FVector::ZeroVector;
    }
 }

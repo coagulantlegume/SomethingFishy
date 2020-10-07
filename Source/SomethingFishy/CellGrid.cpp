@@ -22,6 +22,7 @@ bool FVectorCmp::operator()(const FVector& a, const FVector& b) const {
 UCellGrid::UCellGrid()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	// PrimaryComponentTick.TickInterval = 0.33f;
 	unitSize = 1;
 	activeCount = 0;
 	passiveCount = 0;
@@ -33,15 +34,22 @@ void UCellGrid::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	std::map<FVector, Cell, FVectorCmp>::iterator cell = grid.begin();
+	passiveCount = 0;
 	while (cell != grid.end())
 	{
 		if (cell->second.isActive())
 		{
 			CleanCell(cell->first);
-			// DrawDebugBox(GetWorld(), (cell->first + 0.5) * unitSize, FVector(unitSize / 2, unitSize / 2, unitSize / 2), FColor::Green, false, .5, 0, 10);
+			// DrawDebugBox(GetWorld(), (cell->first + 0.5) * unitSize, FVector(unitSize / 2, unitSize / 2, unitSize / 2), FColor::Green, false, .05, 0, 10);
+		}
+		else
+		{
+			++passiveCount;
+			// DrawDebugBox(GetWorld(), (cell->first + 0.5) * unitSize, FVector(unitSize / 2, unitSize / 2, unitSize / 2), FColor::Red, false, .05, 0, 10);
 		}
 		++cell;
 	}
+	activeCount = size - passiveCount;
 	if(grid.size() > 1.5 * size) ClearPassive();
 }
 
@@ -75,10 +83,12 @@ std::vector<AActor*> UCellGrid::GetNeighbors(const AActor* me)
 		{
 			for (int z = loc.Z - 1; z <= loc.Z + 1; ++z)
 			{
-				std::list<AActor*> newNeighbors = grid[FVector(x, y, z)].GetElements();
-				for (const auto& elem : newNeighbors)
-				{
-					neighbors.push_back(elem);
+				if (grid.find(FVector(x, y, z)) != grid.end()) {
+					std::list<AActor*> newNeighbors = grid[FVector(x, y, z)].GetElements();
+					for (const auto& elem : newNeighbors)
+					{
+						neighbors.push_back(elem);
+					}
 				}
 			}
 		}
@@ -152,7 +162,7 @@ void UCellGrid::ClearPassive()
 	{
 		if (!cell->second.isActive())
 		{
-			grid.erase(cell);
+			grid.erase(cell->first);
 		}
 		++cell;
 	}
@@ -248,6 +258,7 @@ void UCellGrid::CleanCell(FVector cell)
 			loc.Z < zero.Z || loc.Z >= zero.Z + unitSize)
 		{ // out of bounds, remove from cell and re-add to grid in proper cell
 			grid[cell].RemoveElement(*it);
+			--size;
 			AddElement(*it);
 		}
 		++it;

@@ -72,7 +72,10 @@ public:
       float perceptionRange = 300;
 
    UPROPERTY(EditAnywhere)
-      float speed = 500;
+      float max_speed = 500;
+
+   UPROPERTY(EditAnywhere)
+      float idle_speed = 200;
 
    UPROPERTY(EditAnywhere)
       float max_force = .5;
@@ -108,6 +111,5 @@ protected:
 
 private:
    // Array of all boids in flock
-   std::list <class ABoid* > flockmates;
    class UCellGrid* flockGrid;
 };

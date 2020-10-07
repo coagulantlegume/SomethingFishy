@@ -46,13 +46,7 @@ void AFlock::GetVisibleFlockmates(ABoid* me, std::vector<ABoid*>& visibleBoids)
 // Remove a specific boid from world
 void AFlock::Remove(ABoid* toRemove)
 {
-   for (std::list<ABoid*>::iterator it = flockmates.begin(); it != flockmates.end(); ++it) {
-      if (*it == toRemove) {
-         flockmates.erase(it);
-         (*it)->ConditionalBeginDestroy();
-         return;
-      }
-   }
+   flockGrid->RemoveElement(toRemove);
 }
 
 // Called when the game starts or when spawned
@@ -70,14 +64,13 @@ void AFlock::BeginPlay()
    for (int i = 0; i < this->flockSize; ++i)
    {
       // set random position within bounds
-      location.FVector::Set(UKismetMathLibrary::RandomFloat() * this->bounds.X / 2 + this->bounds.X / 2,
+      location.FVector::Set(UKismetMathLibrary::RandomFloat() * this->bounds.X,
          UKismetMathLibrary::RandomFloat() * this->bounds.Y,
          500);
       rotation = FRotator(UKismetMathLibrary::RandomFloat() * 180,
          UKismetMathLibrary::RandomFloat() * 180, 0);
       ABoid* newFlockmate = (ABoid*)world->UWorld::SpawnActor(ActorToSpawn, &location, &rotation);
       newFlockmate->SetFlock(this);
-      this->flockmates.push_back(newFlockmate);
       flockGrid->AddElement(newFlockmate);
    }
 
