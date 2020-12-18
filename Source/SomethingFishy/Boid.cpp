@@ -44,7 +44,7 @@ ABoid::ABoid()
    ProjectileMovementComponent->InitialSpeed = 0.0;
    ProjectileMovementComponent->bRotationFollowsVelocity = true;
    ProjectileMovementComponent->bShouldBounce = true;
-   ProjectileMovementComponent->Bounciness = 0.3f;
+   ProjectileMovementComponent->Bounciness = 0.4f;
    ProjectileMovementComponent->ProjectileGravityScale = 0;
 
    VisualMesh->SetCollisionProfileName(TEXT("Boids"));
@@ -328,7 +328,7 @@ FVector ABoid::AvoidObstacles()
 
    // Avoid beacon
    float dist = FVector::Dist(loc, myFlock->beaconLocation);
-   if (dist < myFlock->perceptionRange * 3) {
+   if (dist < 1200) {
       force = loc - myFlock->beaconLocation;
       force /= myFlock->max_speed;
 

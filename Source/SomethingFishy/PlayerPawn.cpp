@@ -167,7 +167,7 @@ void APlayerPawn::PlaceBait()
    FHitResult outHit = this->TraceCollision(reachDistance * 2);
    if (numBait > 0)
    {
-      if (outHit.bBlockingHit && *outHit.GetActor()->GetName() == FString("Floor"))
+      if (outHit.bBlockingHit && *outHit.GetActor()->GetName() == FString("Floor_39"))
       {
          baitManager->SpawnBait(outHit.ImpactPoint);
          --numBait;
