@@ -16,14 +16,14 @@ public:
 	AIsland();
 
 protected:
+	// Called when an instance of this class is placed or spawned (in editor)
+	virtual void OnConstruction(const FTransform &Transform) override;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UPROPERTY(editAnywhere)
 	class UProceduralMeshComponent* CustomMesh;
-
-	UPROPERTY(editAnywhere)
-	class UFastNoiseWrapper* TerrainNoise;
 
 	UPROPERTY(editAnywhere)
 	FVector dimensions = FVector(100, 100, 100);
@@ -41,6 +41,4 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-private:
-	FVector tiltToReal(FVector tilt);
 };
