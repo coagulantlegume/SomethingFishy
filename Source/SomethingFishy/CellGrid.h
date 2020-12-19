@@ -2,15 +2,10 @@
 
 #pragma once
 
-#include <map>
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Vector3Map.h"
 #include "CellGrid.generated.h"
-
-/* FVector less than comparison for map use */
-struct FVectorCmp {
-	bool operator()(const FVector& a, const FVector& b) const;
-};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SOMETHINGFISHY_API UCellGrid : public UActorComponent

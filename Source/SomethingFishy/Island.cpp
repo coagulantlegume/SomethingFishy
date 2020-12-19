@@ -5,7 +5,7 @@
 
 #include "ProceduralMeshComponent.h"
 #include "Math/UnrealMathUtility.h"
-#include <math.h>
+#include <cmath>
 
 // Sets default values
 AIsland::AIsland()
@@ -23,6 +23,11 @@ AIsland::AIsland()
 void AIsland::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
+
+	// Hex top/bottom variables
+	xOffset = sqrt(3) * unitSize;
+	yOffset = (3 * unitSize) / 2;
+
 	GeneratePlane();
 }
 
@@ -41,7 +46,7 @@ void AIsland::AddTriangle(int32 V1, int32 V2, int32 V3)
 
 void AIsland::GeneratePlane()
 {
-
+	drawHex(FVector(0, 0, 0));
 
 	// for (int x = 0; x <= dimensions.X; ++x) // create initial line
 	// {
@@ -76,4 +81,93 @@ void AIsland::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+FVector AIsland::hexToWorld(FVector loc)
+{
+	return FVector(loc.X * xOffset + ((int)loc.Y % 2) * (xOffset / 2), loc.Y * yOffset, 0);
+}
+
+void AIsland::drawHex(FVector loc)
+{
+	FVector origin = hexToWorld(loc);
+	// center point
+	int origin_index = Vertices.Num();
+	Vertices.Add(origin);
+	hexPoints[origin] = origin_index;
+
+	// 12:00
+	Vertices.Add(FVector(origin.X, origin.Y + unitSize, 0));
+
+	// 2:00
+	Vertices.Add(FVector(origin.X + xOffset / 2, origin.Y + unitSize / 2, 0));
+
+	// 4:00
+	Vertices.Add(FVector(origin.X + xOffset / 2, origin.Y - unitSize / 2, 0));
+
+	// 6:00
+	Vertices.Add(FVector(origin.X, origin.Y - unitSize, 0));
+
+	// 8:00
+	Vertices.Add(FVector(origin.X - xOffset / 2, origin.Y - unitSize / 2, 0));
+
+	// 10:00
+	Vertices.Add(FVector(origin.X - xOffset / 2, origin.Y + unitSize / 2, 0));
+
+	// Connect triangles
+	for (int i = origin_index + 1; i < origin_index + 6; ++i)
+	{
+		AddTriangle(i, i + 1, origin_index);
+	}
+	AddTriangle(origin_index + 6, origin_index + 1, 0);
+}
+
+void AIsland::getNeighbors(FVector loc, std::vector<FVector> &neighbors)
+{
+	neighbors.clear();
+	neighbors.resize(6);
+
+	FVector possibleNeighbor;
+
+	// 1:00
+	possibleNeighbor = FVector(loc.X + ((int)loc.X % 2), loc.Y + 1, loc.Z);
+	if (hexPoints.find(possibleNeighbor) != hexPoints.end())
+	{
+		neighbors[0] = possibleNeighbor;
+	}
+
+	// 3:00
+	possibleNeighbor = FVector(loc.X + 1, loc.Y, loc.Z);
+	if (hexPoints.find(possibleNeighbor) != hexPoints.end())
+	{
+		neighbors[1] = possibleNeighbor;
+	}
+
+	// 5:00
+	possibleNeighbor = FVector(loc.X + ((int)loc.X % 2), loc.Y - 1, loc.Z);
+	if (hexPoints.find(possibleNeighbor) != hexPoints.end())
+	{
+		neighbors[2] = possibleNeighbor;
+	}
+
+	// 7:00
+	possibleNeighbor = FVector(loc.X - (((int)loc.X + 1) % 2), loc.Y - 1, loc.Z);
+	if (hexPoints.find(possibleNeighbor) != hexPoints.end())
+	{
+		neighbors[3] = possibleNeighbor;
+	}
+
+	// 9:00
+	possibleNeighbor = FVector(loc.X - 1, loc.Y, loc.Z);
+	if (hexPoints.find(possibleNeighbor) != hexPoints.end())
+	{
+		neighbors[4] = possibleNeighbor;
+	}
+
+	// 11:00
+	possibleNeighbor = FVector(loc.X - (((int)loc.X + 1) % 2), loc.Y + 1, loc.Z);
+	if (hexPoints.find(possibleNeighbor) != hexPoints.end())
+	{
+		neighbors[5] = possibleNeighbor;
+	}
 }
