@@ -35,10 +35,14 @@ protected:
 	float xOffset;
 	float yOffset;
 
+	TArray<TArray<bool>> islandGrid;
+	std::list<FIntPoint> edgePieces;
+
 	TArray<FVector> Vertices;
 	TArray<int32> Triangles;
 
 	std::map<FVector, int, FVectorCmp> hexPoints; // Container of hexes drawn, with key = Vector3(hex_x, hex_y, layer (top = 1, bottom = 0)
+	int fillStart; // first fill hex center index
 
 	void AddTriangle(int32 V1, int32 V2, int32 V3);
 	void GeneratePlane();
@@ -48,8 +52,15 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	void drawHex(FVector loc);
-	void getNeighbors(FVector loc, std::vector<FVector> &neighbors);
+	void drawStructureHex(FVector loc);
+	void drawFillHex(FVector loc);
+
+	FVector getCornerCoordinate(FVector center, int pos);
+
+	void getNeighbors(FVector loc, std::vector<FVector> &neighbors); // Returns all hex neighbors that have been constructed
+	void getNeighborTiles(FIntPoint loc, std::vector<FIntPoint> &neighbors); // Returns all coordinates surrounding given coordinate
 
 	FVector hexToWorld(FVector loc);
+
+	void growIsland();
 };
