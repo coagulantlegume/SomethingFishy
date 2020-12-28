@@ -41,26 +41,27 @@ protected:
 	TArray<FVector> Vertices;
 	TArray<int32> Triangles;
 
-	std::map<FVector, int, FVectorCmp> hexPoints; // Container of hexes drawn, with key = Vector3(hex_x, hex_y, layer (top = 1, bottom = 0)
-	int fillStart; // first fill hex center index
+	std::map<FVector, int, FVectorCmp> triPoint; // Up/down vertex of given tri as index in Triangles
 
 	void AddTriangle(int32 V1, int32 V2, int32 V3);
 	void GeneratePlane();
+	void GenerateTriIsland();
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	void drawStructureHex(FVector loc);
-	void drawFillHex(FVector loc);
+	void drawStructureTri(FVector loc);
+	void drawFillTri(FVector loc);
 
-	FVector getCornerCoordinate(FVector center, int pos);
+	FVector getCornerCoordinate(FVector loc, int pos);
 
 	void getNeighbors(FVector loc, std::vector<FVector> &neighbors); // Returns all hex neighbors that have been constructed
-	void getNeighborTiles(FIntPoint loc, std::vector<FIntPoint> &neighbors); // Returns all coordinates surrounding given coordinate
+	void getNeighborTiles(FVector loc, std::vector<FVector> &neighbors); // Returns all coordinates surrounding given coordinate
+	void getTangentNeighbors(FVector loc, int pos, std::vector<FVector>& neighbors); // Returns all triangles sharing only vertex at specified pos with loc
 
-	FVector hexToWorld(FVector loc);
+	FVector triToWorld(FVector loc);
 
 	void growIsland();
 };
