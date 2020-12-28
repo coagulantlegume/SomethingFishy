@@ -30,6 +30,24 @@ protected:
 	FVector dimensions = FVector(100, 100, 100);
 
 	UPROPERTY(editAnywhere)
+		float TopHeight;
+
+	UPROPERTY(editAnywhere)
+		int TopNoiseSeed1;
+	UPROPERTY(editAnywhere)
+		int TopNoiseSeed2;
+
+	UPROPERTY(editAnywhere)
+		int TopNoiseWeight1;
+	UPROPERTY(editAnywhere)
+		int TopNoiseWeight2;
+
+	UPROPERTY(editAnywhere)
+		float TopNoiseScale1;
+	UPROPERTY(editAnywhere)
+		float TopNoiseScale2;
+
+	UPROPERTY(editAnywhere)
 	float unitSize = 1;
 
 	float xOffset;

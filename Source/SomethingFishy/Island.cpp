@@ -4,6 +4,7 @@
 #include "Island.h"
 
 #include "ProceduralMeshComponent.h"
+#include "FastNoiseLite.h"
 #include "Math/UnrealMathUtility.h"
 #include <cmath>
 #include <cstdlib>
@@ -54,6 +55,15 @@ void AIsland::AddTriangle(int32 V1, int32 V2, int32 V3)
 
 void AIsland::GeneratePlane()
 {
+	// Setup noise generators
+	FastNoiseLite topNoiseGen1;
+	topNoiseGen1.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
+	topNoiseGen1.SetSeed(TopNoiseSeed1);
+
+	FastNoiseLite topNoiseGen2;
+	topNoiseGen2.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
+	topNoiseGen2.SetSeed(TopNoiseSeed2);
+
 	// First pass (structure tris, no overlap vertices)
 	// for (int y = 0; y < dimensions.Y; y += 2)
 	// {
@@ -79,6 +89,14 @@ void AIsland::GeneratePlane()
 	for (int i = 0; i < Vertices.Num(); ++i)
 	{
 		VertexColors.Add(FLinearColor(0.f, 0.f, 0.f));
+
+		// Set height with noise
+		float height = topNoiseGen1.GetNoise(Vertices[i].X * TopNoiseScale1, Vertices[i].Y * TopNoiseScale1) * TopNoiseWeight1;
+		height += topNoiseGen2.GetNoise(Vertices[i].X * TopNoiseScale2, Vertices[i].Y * TopNoiseScale2) * TopNoiseWeight2;
+		height += TopNoiseWeight1 + TopNoiseWeight2; // to make all positive
+		height /= TopNoiseWeight1 + TopNoiseWeight2; // make 0-1
+		height *= TopHeight; // scale to specified
+		Vertices[i].Z = height;
 	}
 
 	CustomMesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, TArray<FVector>(), TArray<FVector2D>(), VertexColors, TArray<FProcMeshTangent>(), true);
