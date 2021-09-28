@@ -108,7 +108,7 @@ void ABoid::Tick(float DeltaTime)
    }
    
    // Calculate player avoidance logic
-   if (myFlock->avoidPlayer_weight)
+   if (myFlock->avoidPlayer_weight && myFlock->player)
    {
       temp = AvoidPlayer() * myFlock->avoidPlayer_weight;
       if (temp.Size())
@@ -147,7 +147,7 @@ void ABoid::Tick(float DeltaTime)
    FVector new_force = desired_direction - ProjectileMovementComponent->Velocity; // Optimal force
    if (new_force.Size() > (myFlock->max_force * DeltaTime)) // Cap force
    {
-      if (GEngine && ID == 0) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("%f"), new_force.Size()));
+      // if (GEngine && ID == 0) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("%f"), new_force.Size()));
       new_force = new_force / new_force.Size() * (myFlock->max_force * DeltaTime);
    }
    
@@ -346,15 +346,18 @@ FVector ABoid::AvoidObstacles()
    FVector loc = GetActorLocation();
 
    // Avoid beacon
-   float dist = FVector::Dist(loc, myFlock->beaconLocation);
-   if (dist < 1200) {
-      direction = loc - myFlock->beaconLocation;
-      direction /= myFlock->max_speed;
+   if (myFlock->shopKeep)
+   {
+      float dist = FVector::Dist(loc, myFlock->beaconLocation);
+      if (dist < 1200) {
+         direction = loc - myFlock->beaconLocation;
+         direction /= myFlock->max_speed;
 
-      if (direction.Size() > 1)
-      {
-         direction /= direction.Size();
-         direction *= myFlock->max_speed;
+         if (direction.Size() > 1)
+         {
+            direction /= direction.Size();
+            direction *= myFlock->max_speed;
+         }
       }
    }
 

@@ -76,6 +76,9 @@ void AFlock::BeginPlay()
    }
 
    // Calculate beacon location
-   FVector shopLoc = shopKeep->GetActorLocation();
-   beaconLocation = FVector(shopLoc.X, shopLoc.Y, shopLoc.Z + 500);
+   if (shopKeep)
+   {
+      FVector shopLoc = shopKeep->GetActorLocation();
+      beaconLocation = FVector(shopLoc.X, shopLoc.Y, shopLoc.Z + 500);
+   }
 }
