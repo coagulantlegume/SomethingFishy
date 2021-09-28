@@ -71,6 +71,7 @@ void AFlock::BeginPlay()
          UKismetMathLibrary::RandomFloat() * 180, 0);
       ABoid* newFlockmate = (ABoid*)world->UWorld::SpawnActor(ActorToSpawn, &location, &rotation);
       newFlockmate->SetFlock(this);
+      newFlockmate->SetID(i);
       flockGrid->AddElement(newFlockmate);
    }
 

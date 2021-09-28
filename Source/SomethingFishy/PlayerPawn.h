@@ -39,6 +39,7 @@ public:
    float jumpHeight = 150;
 
    int numFish = 0;
+   UPROPERTY(EditAnywhere)
    int numBait = 0;
 
 protected:

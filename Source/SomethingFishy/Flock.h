@@ -75,7 +75,7 @@ public:
       float max_speed = 500;
 
    UPROPERTY(EditAnywhere)
-      float idle_speed = 200;
+      float min_speed = 200;
 
    UPROPERTY(EditAnywhere)
       float max_force = .5;

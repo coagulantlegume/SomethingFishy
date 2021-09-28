@@ -31,6 +31,9 @@ public:
    // set rotation and position to enter/re-enter main play area
    void Enter();
 
+   // set identification number (for debug purposes)
+   void SetID(unsigned int id);
+
 protected:
    // Called when the game starts or when spawned
    virtual void BeginPlay() override;
@@ -46,6 +49,9 @@ private:
 
    /* Parameters */
    class AFlock* myFlock; // reference to flock that boid is a member of
+
+   /* Identification */
+   unsigned int ID;
 
 
    /****************************************
