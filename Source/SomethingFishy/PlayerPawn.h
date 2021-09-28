@@ -39,8 +39,12 @@ public:
    float jumpHeight = 150;
 
    int numFish = 0;
+
    UPROPERTY(EditAnywhere)
    int numBait = 0;
+
+   UPROPERTY(EditAnywhere)
+   float fallCutoffHeight = 300;
 
 protected:
 	// Called when the game starts or when spawned

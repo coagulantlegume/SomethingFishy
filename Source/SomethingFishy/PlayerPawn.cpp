@@ -13,6 +13,7 @@
 #include "Components/Inputcomponent.h"
 #include "DrawDebugHelpers.h"
 #include "UI/Primary_HUD.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 APlayerPawn::APlayerPawn()
@@ -62,6 +63,12 @@ void APlayerPawn::BeginPlay()
 void APlayerPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);   
+
+   // check out of bounds
+   if (GetActorLocation().Z < -fallCutoffHeight)
+   {
+      UGameplayStatics::OpenLevel(GetWorld(), "MainMenu");
+   }
 
    FRotator  newYaw = GetActorRotation();
    newYaw.Yaw += mouseInput.X;
