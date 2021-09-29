@@ -69,7 +69,7 @@ void ABait::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, cl
       }
       else
       {
-         if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Bait gone!")));
+         // if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Bait gone!")));
          this->scentParticle->bSuppressSpawning = true;
          this->ConditionalBeginDestroy();
       }

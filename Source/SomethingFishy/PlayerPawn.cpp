@@ -67,7 +67,7 @@ void APlayerPawn::Tick(float DeltaTime)
    // check out of bounds
    if (GetActorLocation().Z < -fallCutoffHeight)
    {
-      UGameplayStatics::OpenLevel(GetWorld(), "MainMenu");
+      GameOver();
    }
 
    FRotator  newYaw = GetActorRotation();
@@ -101,7 +101,7 @@ void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 void APlayerPawn::Move_XAxis(float value)
 {
-   if (movementComponent && movementComponent->UpdatedComponent == RootComponent)
+   if (movementComponent && movementComponent->UpdatedComponent == RootComponent && !freeze)
    {
       movementComponent->AddInputVector(GetActorForwardVector() * FMath::Clamp(value, -1.0f, 1.0f));
    }
@@ -109,7 +109,7 @@ void APlayerPawn::Move_XAxis(float value)
 
 void APlayerPawn::Move_YAxis(float value)
 {
-   if (movementComponent && movementComponent->UpdatedComponent == RootComponent)
+   if (movementComponent && movementComponent->UpdatedComponent == RootComponent && !freeze)
    {
       movementComponent->AddInputVector(GetActorRightVector() * FMath::Clamp(value, -1.0f, 1.0f));
    }
@@ -117,7 +117,7 @@ void APlayerPawn::Move_YAxis(float value)
 
 void APlayerPawn::Jump()
 {
-   if (!bjumping)
+   if (!bjumping && !freeze)
    {
       // if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Jump!")));
       collisionMesh->AddImpulse(GetActorUpVector() * jumpImpulse);
@@ -127,16 +127,26 @@ void APlayerPawn::Jump()
 
 void APlayerPawn::CameraMoveX(float value)
 {
-   mouseInput.X = value;
+   if (!freeze)
+   {
+      mouseInput.X = value;
+   }
 }
 
 void APlayerPawn::CameraMoveY(float value)
 {
-   mouseInput.Y = -value;
+   if (!freeze)
+   {
+      mouseInput.Y = -value;
+   }
 }
 
 void APlayerPawn::Interact()
 {
+   if (freeze)
+   {
+      return;
+   }
    FHitResult outHit = this->TraceCollision(reachDistance);
 
    if (outHit.bBlockingHit && outHit.GetActor()->IsA(ABoid::StaticClass()))
@@ -171,6 +181,10 @@ void APlayerPawn::Interact()
 
 void APlayerPawn::PlaceBait()
 {
+   if (freeze)
+   {
+      return;
+   }
    FHitResult outHit = this->TraceCollision(reachDistance * 2);
    if (numBait > 0)
    {
@@ -216,4 +230,9 @@ void APlayerPawn::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Oth
    {
       bjumping = false;
    }
+}
+
+void APlayerPawn::GameOver()
+{
+   UGameplayStatics::OpenLevel(GetWorld(), "MainMenu");
 }

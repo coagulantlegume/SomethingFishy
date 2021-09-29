@@ -35,9 +35,14 @@ public:
 
    float maxSpeed = 7;
 
+   // whether to freeze player input
+   UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
+   bool freeze = false;
+
    float jumpImpulse = 200000;
    float jumpHeight = 150;
 
+   UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
    int numFish = 0;
 
    UPROPERTY(EditAnywhere)
@@ -69,6 +74,9 @@ public:
 
    // Hit event
    void NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit);
+
+   // Function called when game over state initiated
+   void GameOver();
 
    // Input variables
    FVector CurrentVelocity;
