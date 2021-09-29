@@ -16,7 +16,7 @@ AShopKeep::AShopKeep()
    this->VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
    RootComponent = VisualMesh;
 
-   static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeVisualAsset(TEXT("/Game/LPAnimals/Meshes/Turtle.Turtle"));
+   static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeVisualAsset(TEXT("/Game/Assets/LPAnimals/Meshes/Turtle.Turtle"));
 
    if (CubeVisualAsset.Succeeded())
    {

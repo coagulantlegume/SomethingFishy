@@ -21,7 +21,7 @@ ABait::ABait()
    this->VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
    this->VisualMesh->SetupAttachment(RootComponent);
 
-   static ConstructorHelpers::FObjectFinder<UStaticMesh> VisualAsset(TEXT("/Game/Bait/bait.bait"));
+   static ConstructorHelpers::FObjectFinder<UStaticMesh> VisualAsset(TEXT("/Game/Assets/Bait/bait.bait"));
 
    if (VisualAsset.Succeeded())
    {
