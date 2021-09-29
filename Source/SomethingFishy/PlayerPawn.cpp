@@ -146,7 +146,7 @@ void APlayerPawn::Interact()
       {
          primaryHUD->FishValueMore(numFish);
       }
-      if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Caught Fish!")));
+      // if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Caught Fish!")));
 
       ((ABoid*)outHit.GetActor())->Enter();
    }
@@ -164,7 +164,7 @@ void APlayerPawn::Interact()
          {
             primaryHUD->FishValueLess(numFish);
          }
-         if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Bought Bait!")));
+         // if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Bought Bait!")));
       }
    }
 }
